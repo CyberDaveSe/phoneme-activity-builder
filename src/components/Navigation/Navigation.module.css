@@ -1,0 +1,133 @@
+.header {
+    position: relative;
+    width: 100%;
+    border-bottom: 1px solid #d9d9d9;
+    background-color: #ffffff;
+}
+
+.container {
+    max-width: 1200px;
+    min-height: 72px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 32px;
+}
+
+.logo {
+    color: #1f2937;
+    font-size: 1.25rem;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.logo:focus-visible {
+    outline: 3px solid #2563eb;
+    outline-offset: 3px;
+    border-radius: 4px;
+}
+
+.desktopNav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.navLink {
+    padding: 10px 14px;
+    border-radius: 6px;
+    color:#374151;
+    font-size: 0.95rem;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.navLink:hover {
+    background-color: #f3f4f6;
+}
+
+.navLink:focus-visible {
+    outline:3px solid #2563eb;
+    outline-offset: 2px;
+}
+
+.menuButton {
+    display: flex;
+    border: center;
+    justify-content: center;
+    border: none;
+    border-radius: 6px;
+    background-color: transparent;
+    padding: 8px;
+    cursor: pointer;
+}
+
+.menuButton:hover {
+    background-color: #f3f4f6;
+}
+
+.menuButton:focus-visible {
+    outline: 3px solid #2563eb;
+    outline-offset: 2px;
+}
+
+.menuIcon {
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+.mobileMenu {
+    position: absolute;
+    top: 72px;
+    right: 24px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 180px;
+    padding: 12px;
+    border: 1px solid #d9d9d9;
+    border-radius: 8px;
+    background-color: #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.mobileLink {
+    color: #374151;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.mobileLink:hover {
+    background-color: #f3f4f6;
+}
+
+.mobileLink:focus-visible {
+    outline: 3px solid #2563eb;
+    outline-offset: 2px;
+}
+
+@media (max-width: 768px) {
+    .container {
+        min-height: 64px;
+        padding: 0 16px;
+    }
+
+    .desktopNav {
+        display: none;        
+    }
+
+    .mobileLink {
+        padding: 12px;
+        border-radius: 6px;
+    }
+}
