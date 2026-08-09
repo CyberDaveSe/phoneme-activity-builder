@@ -1,8 +1,8 @@
 .header {
     position: relative;
     width: 100%;
-    border-bottom: 1px solid #d9d9d9;
-    background-color: #ffffff;
+    border-bottom: 1px solid var(--border);
+    background-color: var(--surface);
 }
 
 .container {
@@ -17,7 +17,7 @@
 }
 
 .logo {
-    color: #1f2937;
+    color: var(--primary-dark);
     font-size: 1.25rem;
     font-weight: 700;
     text-decoration: none;
@@ -25,7 +25,7 @@
 }
 
 .logo:focus-visible {
-    outline: 3px solid #2563eb;
+    outline: 3px solid var(--focus);
     outline-offset: 3px;
     border-radius: 4px;
 }
@@ -36,47 +36,41 @@
     gap: 8px;
 }
 
-.nav {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
 .navLink {
     padding: 10px 14px;
-    border-radius: 6px;
-    color:#374151;
+    border-radius: var(--radius-small);
+    color: var(--text);
     font-size: 0.95rem;
     font-weight: 500;
     text-decoration: none;
 }
 
 .navLink:hover {
-    background-color: #f3f4f6;
+    background-color: var(--primary-light);
 }
 
 .navLink:focus-visible {
-    outline:3px solid #2563eb;
+    outline:3px solid var(--focus);
     outline-offset: 2px;
 }
 
 .menuButton {
     display: flex;
-    border: center;
+    align-items: center;
     justify-content: center;
     border: none;
-    border-radius: 6px;
+    border-radius: var(--radius-small);
     background-color: transparent;
     padding: 8px;
     cursor: pointer;
 }
 
 .menuButton:hover {
-    background-color: #f3f4f6;
+    background-color: var(--primary-light);
 }
 
 .menuButton:focus-visible {
-    outline: 3px solid #2563eb;
+    outline: 3px solid var(--focus);
     outline-offset: 2px;
 }
 
@@ -95,24 +89,26 @@
     gap: 4px;
     min-width: 180px;
     padding: 12px;
-    border: 1px solid #d9d9d9;
-    border-radius: 8px;
-    background-color: #ffffff;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border);
+    border-radius: var(--border-medium);
+    background-color: var(--surface);
+    box-shadow: 0 4px 12px rgba(66, 99, 76, 0.15);
 }
 
 .mobileLink {
-    color: #374151;
+    padding: 10px;
+    border-radius: var(--radius-small);
+    color: var(--text);
     font-weight: 500;
     text-decoration: none;
 }
 
 .mobileLink:hover {
-    background-color: #f3f4f6;
+    background-color: var(--primary-light);
 }
 
 .mobileLink:focus-visible {
-    outline: 3px solid #2563eb;
+    outline: 3px solid var(--focus);
     outline-offset: 2px;
 }
 
@@ -126,8 +122,13 @@
         display: none;        
     }
 
+    .mobileMenu {
+        top: 64px;
+        right: 16px;
+        left: 16px;
+    }
+
     .mobileLink {
         padding: 12px;
-        border-radius: 6px;
     }
 }
