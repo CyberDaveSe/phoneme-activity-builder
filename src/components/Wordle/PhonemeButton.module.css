@@ -1,0 +1,71 @@
+.button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 52px;
+  height: 48px;
+
+  padding: 8px;
+
+  border: 1px solid var(--border);
+  border-radius: var(--radius-small);
+
+  background-color: var(--surface);
+  color: var(--primary-dark);
+
+  font-size: 1rem;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.button:hover {
+  background-color: var(--primary-light);
+  transform: translateY(-1px);
+}
+
+.button:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.symbol {
+  line-height: 1;
+}
+
+.tooltip {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 10px);
+
+  transform: translateX(-50%);
+
+  width: max-content;
+  max-width: 180px;
+
+  padding: 6px 10px;
+
+  border-radius: var(--radius-small);
+
+  background-color: var(--primary-dark);
+  color: #ffffff;
+
+  font-size: 0.8rem;
+  font-weight: 500;
+  white-space: nowrap;
+
+  opacity: 0;
+  pointer-events: none;
+
+  transition: opacity 0.2s ease;
+}
+
+.button:hover .tooltip,
+.button:focus-visible .tooltip {
+  opacity: 1;
+}

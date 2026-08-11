@@ -1,3 +1,9 @@
+import WordleBuilder from "@/components/Wordle/WordleBuilder";
+
 export default function WordlePage() {
-    return <h1>Wordle</h1>
+  return (
+    <div className="pageContainer">
+      <WordleBuilder />
+    </div>
+  );
 }
