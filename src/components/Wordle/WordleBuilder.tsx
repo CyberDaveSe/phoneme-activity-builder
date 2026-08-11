@@ -3,30 +3,19 @@
 import { useState } from "react";
 import WordleSettings from "./WordleSettings";
 import WordlePreview from "./WordlePreview";
-import { wordleWords } from "@/data/wordleWords";
+import { wordleTarget } from "@/data/wordleTarget";
 import styles from "@/app/wordle/Wordle.module.css";
 
 export default function WordleBuilder() {
   const [selectedPhonemes, setSelectedPhonemes] = useState<string[]>([]);
+  
+  const [guesses, setGuesses] = useState<string[][]>([]);
+  const [currentGuess, setCurrentGuess] = useState<string[]>([]);
 
   const [difficulty, setDifficulty] = useState("medium");
-
-  const [targetWord, setTargetWord] = useState<string | null>(null);
-
-  const availableWords = wordleWords.filter(
-    (entry) => entry.difficulty === difficulty
-  );
-
+  
   const generateActivity = () => {
-    if (availableWords.length === 0) {
-        return;
-    }
-
-  const randomIndex = Math.floor(Math.random() * availableWords.length);
-  const selectedWord = availableWords[randomIndex];
-
-  setTargetWord(selectedWord.word);
-  setSelectedPhonemes(selectedWord.phonemes);
+  setSelectedPhonemes(wordleTarget.phonemes);
 };
 
   const addPhoneme = (phoneme: string) => {
@@ -46,9 +35,43 @@ export default function WordleBuilder() {
    });
   };
 
-   const clearPhonemes = () => {
+  const addGuessPhoneme = (phoneme: string) => {
+    setCurrentGuess((current) => {
+      if (current.length >= 3) {
+        return current;
+    }
+  
+      return [...current, phoneme];
+    });
+  };
+  
+  const clearCurrentGuess = () => {
+    setCurrentGuess([]);
+  };
+
+  const submitGuess = () => {
+    if (currentGuess.length !== wordleTarget.phonemes.length) {
+      return;
+    }
+
+    if (guesses.length >= 6) {
+      return;
+    }
+
+    setGuesses((current) => [...current, currentGuess]);
+    setCurrentGuess([]);
+  };
+
+  const startOver = () => {
+    setGuesses([]);
+    setCurrentGuess([]);
+  };
+
+  const clearPhonemes = () => {
     setSelectedPhonemes([]);
   };
+
+  
 
   return (
     <main className={styles.builder}>
@@ -75,9 +98,24 @@ export default function WordleBuilder() {
           <WordlePreview 
             selectedPhonemes={selectedPhonemes}
             difficulty={difficulty} 
+            guesses={guesses}
+            currentGuess={currentGuess}
+            onAddGuessPhoneme={addGuessPhoneme}
+            onClearCurrentGuess={clearCurrentGuess}
+            onSubmitGuess={submitGuess}
+            onStartOver={startOver}
         />
         </div>
       </section>
+
+      <button
+        type="button"
+        className={styles.generateButton}
+        onClick={generateActivity}
+      >
+        Generate Activity
+      </button>
+
     </main>
   );
 }

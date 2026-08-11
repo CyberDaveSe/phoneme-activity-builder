@@ -2,12 +2,15 @@ import styles from "@/app/wordle/Wordle.module.css";
 
 type WordleBoardProps = {
   selectedPhonemes: string[];
-  difficulty:string;
+  difficulty: string;
+  guesses: string[][];
+  currentGuess: string[];
 };
-
 export default function WordleBoard({
   selectedPhonemes,
   difficulty,
+  guesses,
+  currentGuess,
 }: WordleBoardProps) {
   const rows = 6;
 
@@ -28,9 +31,9 @@ export default function WordleBoard({
         >
           {Array.from({ length: columns }).map((_, columnIndex) => {
             const phoneme =
-              rowIndex === 0
-                ? selectedPhonemes[columnIndex]
-                : undefined;
+              rowIndex === guesses.length
+                ? currentGuess[columnIndex]
+                : guesses[rowIndex]?.[columnIndex];
 
             return (
               <div className={styles.tile} key={columnIndex}>
