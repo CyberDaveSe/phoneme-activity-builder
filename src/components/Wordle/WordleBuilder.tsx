@@ -3,12 +3,31 @@
 import { useState } from "react";
 import WordleSettings from "./WordleSettings";
 import WordlePreview from "./WordlePreview";
+import { wordleWords } from "@/data/wordleWords";
 import styles from "@/app/wordle/Wordle.module.css";
 
 export default function WordleBuilder() {
   const [selectedPhonemes, setSelectedPhonemes] = useState<string[]>([]);
 
   const [difficulty, setDifficulty] = useState("medium");
+
+  const [targetWord, setTargetWord] = useState<string | null>(null);
+
+  const availableWords = wordleWords.filter(
+    (entry) => entry.difficulty === difficulty
+  );
+
+  const generateActivity = () => {
+    if (availableWords.length === 0) {
+        return;
+    }
+
+  const randomIndex = Math.floor(Math.random() * availableWords.length);
+  const selectedWord = availableWords[randomIndex];
+
+  setTargetWord(selectedWord.word);
+  setSelectedPhonemes(selectedWord.phonemes);
+};
 
   const addPhoneme = (phoneme: string) => {
    setSelectedPhonemes((current) => {
