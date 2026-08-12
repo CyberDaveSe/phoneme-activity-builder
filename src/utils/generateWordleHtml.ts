@@ -9,7 +9,20 @@ export function generateWordleHtml() {
         <button
           class="phoneme-button"
           data-phoneme="${phoneme.symbol}"
-          title="${phoneme.label ? `/${phoneme.symbol}/ → ${phoneme.label}` : phoneme.symbol}"
+          title="${
+            phoneme.label
+              ? `/${phoneme.symbol}/ → ${phoneme.label}${
+                  phoneme.example ? ` — as in ${phoneme.example}` : ""
+                }`
+              : phoneme.symbol
+          }"
+          aria-label="${
+            phoneme.label
+              ? `${phoneme.symbol}, ${phoneme.label}${
+                  phoneme.example ? `, as in ${phoneme.example}` : ""
+                }`
+              : phoneme.symbol
+          }"
         >
           ${phoneme.symbol}
         </button>

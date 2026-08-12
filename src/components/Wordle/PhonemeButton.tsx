@@ -3,12 +3,14 @@ import styles from "./PhonemeButton.module.css";
 type PhonemeButtonProps = {
   phoneme: string;
   label?: string;
+  example?: string;
   onSelect: (phoneme: string) => void;
 };
 
 export default function PhonemeButton({
   phoneme,
   label,
+  example,
   onSelect,
 }: PhonemeButtonProps) {
   return (
@@ -18,7 +20,9 @@ export default function PhonemeButton({
       onClick={() => onSelect(phoneme)}
       aria-label={
         label
-          ? `Select phoneme ${phoneme}, English equivalent ${label}`
+          ? `Select phoneme ${phoneme}, English equivalent ${label}${
+              example ? `, as in ${example}` : ""
+            }`
           : `Select phoneme ${phoneme}`
       }
     >
@@ -27,6 +31,7 @@ export default function PhonemeButton({
       {label && (
         <span className={styles.tooltip} role="tooltip">
           /{phoneme}/ → {label}
+          {example ? ` — as in ${example}` : ""}
         </span>
       )}
     </button>

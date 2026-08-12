@@ -65,6 +65,7 @@ export default function WordlePreview({
                 key={phoneme.symbol}
                 phoneme={phoneme.symbol}
                 label={phoneme.label}
+                example={phoneme.example}
                 onSelect={onAddGuessPhoneme}
               />
             ))}

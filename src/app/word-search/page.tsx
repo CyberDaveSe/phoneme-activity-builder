@@ -1,3 +1,9 @@
+import WordSearchBuilder from "@/components/WordSearch/WordSearchBuilder";
+
 export default function WordSearchPage() {
-    return <h1>Word Search</h1>
+  return (
+    <div className="pageContainer">
+      <WordSearchBuilder />
+    </div>
+  );
 }

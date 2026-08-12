@@ -1,0 +1,124 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(6, 48px);
+  gap: 6px;
+
+  width: fit-content;
+  margin: 24px auto;
+  padding: 18px;
+
+  border: 1px solid var(--border);
+  border-radius: var(--radius-medium);
+
+  background-color: var(--primary-light);
+}
+
+.cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 48px;
+  height: 48px;
+
+  border: 1px solid var(--border);
+  border-radius: 6px;
+
+  background-color: var(--surface);
+  color: var(--primary-dark);
+
+  font-size: 1rem;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.cell:hover {
+  background-color: #f6e7a8;
+}
+
+.cell:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.selected {
+  background-color: #f6e7a8;
+  border-color: #d8bd55;
+}
+
+.controls {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+
+.controlButton {
+  padding: 0.6rem 1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.found {
+  background-color: var(--primary);
+  border-color: var(--primary-dark);
+  color: #ffffff;
+}
+
+.wordList {
+  margin-top: 24px;
+  text-align: center;
+}
+
+.wordList ul {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 16px;
+
+  padding: 0;
+  list-style: none;
+}
+
+.wordList li {
+  padding: 6px 10px;
+
+  color: var(--primary-dark);
+  font-weight: 600;
+}
+
+.foundWord {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+.generateButton {
+  display: block;
+  margin: 32px auto 0;
+  padding: 12px 24px;
+
+  border: none;
+  border-radius: var(--radius-small);
+
+  background-color: var(--primary);
+  color: #ffffff;
+
+  font-size: 1rem;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: background-color 0.2s ease;
+}
+
+.generateButton:hover {
+  background-color: var(--primary-dark);
+}
+
+.generateButton:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}

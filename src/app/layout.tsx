@@ -3,6 +3,7 @@ import Footer from "@/components/Footer/Footer";
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
+import ThemeLoader from "@/components/ThemeLoader";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,6 +20,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={geistSans.variable}>
       <body>
+        <ThemeLoader />
         <Navigation />
 
         <main>

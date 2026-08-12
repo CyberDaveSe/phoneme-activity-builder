@@ -14,11 +14,21 @@
   --radius-large: 16px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+[data-theme="dark"] {
+  --background: #1f2421;
+  --surface: #2a312c;
+
+  --primary: #8fb89b;
+  --primary-dark: #c5ddcb;
+  --primary-light: #35443a;
+
+  --accent: #d6a8b3;
+
+  --text: #f2f4f2;
+  --text-muted: #c4cbc6;
+
+  --border: #4b5a50;
+  --focus: #9ac7a5;
 }
 
 html {
@@ -85,12 +95,6 @@ a {
   width: min(100% - 32px, 1200px);
   margin: 0 auto;
   padding: 48px 0;
-}
-
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
 }
 
 button, input, textarea, select {
