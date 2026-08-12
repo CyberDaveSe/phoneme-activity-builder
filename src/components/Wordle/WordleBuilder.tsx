@@ -5,6 +5,7 @@ import WordleSettings from "./WordleSettings";
 import WordlePreview from "./WordlePreview";
 import { wordleTarget } from "@/data/wordleTarget";
 import styles from "@/app/wordle/Wordle.module.css";
+import { generateWordleHtml } from "@/utils/generateWordleHtml";
 
 type GuessResult = {
   phoneme: string;
@@ -24,8 +25,24 @@ export default function WordleBuilder() {
   >("playing");
 
   const generateActivity = () => {
-  setSelectedPhonemes(wordleTarget.phonemes);
-};
+    const html = generateWordleHtml();
+
+    const blob = new Blob([html], {
+      type: "text/html;charset=utf-8",
+    });
+
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "phoneme-wordle.html";
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    URL.revokeObjectURL(url);
+  };
 
   const addPhoneme = (phoneme: string) => {
    setSelectedPhonemes((current) => {
