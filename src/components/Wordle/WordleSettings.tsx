@@ -41,6 +41,7 @@ export default function WordleSettings({
                <PhonemeButton
                  key={phoneme.symbol}
                  phoneme={phoneme.symbol}
+                 label={phoneme.label}
                  onSelect={onAddPhoneme}
                />
               ))}

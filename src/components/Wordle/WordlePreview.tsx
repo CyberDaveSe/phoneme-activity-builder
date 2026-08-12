@@ -3,15 +3,22 @@ import PhonemeButton from "./PhonemeButton";
 import { phonemeRows } from "@/data/phonemes";
 import styles from "./WordleSettings.module.css";
 
+type GuessResult = {
+  phoneme: string;
+  status: "correct" | "present" | "absent";
+};
+
 type WordlePreviewProps = {
   selectedPhonemes: string[];
   difficulty: string;
-  guesses: string[][];
+  guesses: GuessResult[][];
   currentGuess: string[];
   onAddGuessPhoneme: (phoneme: string) => void;
   onClearCurrentGuess: () => void;
   onSubmitGuess: () => void;
   onStartOver: () => void;
+  gameStatus: "playing" | "won" | "lost";
+  targetWord: string;
 };
 
 export default function WordlePreview({
@@ -23,6 +30,8 @@ export default function WordlePreview({
   onClearCurrentGuess,
   onSubmitGuess,
   onStartOver,
+  gameStatus,
+  targetWord,
 }: WordlePreviewProps) {
   return (
     <section>
@@ -35,6 +44,19 @@ export default function WordlePreview({
         currentGuess={currentGuess}
       />
 
+      {gameStatus === "won" && (
+        <div>
+          <p>Correct! You solved the word.</p>
+          <p>
+            English equivalent: <strong>{targetWord.toUpperCase()}</strong>
+          </p>
+        </div>
+      )}
+
+      {gameStatus === "lost" && (
+        <p>Game over. Try again.</p>
+      )}
+
       <div className={styles.phonemeKeyboard}>
         {phonemeRows.map((row, rowIndex) => (
           <div className={styles.phonemeRow} key={rowIndex}>
@@ -42,7 +64,7 @@ export default function WordlePreview({
               <PhonemeButton
                 key={phoneme.symbol}
                 phoneme={phoneme.symbol}
-                example=""
+                label={phoneme.label}
                 onSelect={onAddGuessPhoneme}
               />
             ))}
@@ -63,7 +85,10 @@ export default function WordlePreview({
           type="button"
           className={styles.clearButton}
           onClick={onSubmitGuess}
-          disabled={currentGuess.length !== 3}
+          disabled={
+            currentGuess.length !== 3 ||
+            gameStatus !== "playing"
+          }
         >
           Submit Guess
         </button>
@@ -75,7 +100,6 @@ export default function WordlePreview({
         >
           Start Over
         </button>
-
       </div>
     </section>
   );

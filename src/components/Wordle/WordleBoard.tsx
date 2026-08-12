@@ -1,11 +1,17 @@
 import styles from "@/app/wordle/Wordle.module.css";
 
+type GuessResult = {
+  phoneme: string;
+  status: "correct" | "present" | "absent";
+};
+
 type WordleBoardProps = {
   selectedPhonemes: string[];
   difficulty: string;
-  guesses: string[][];
+  guesses: GuessResult[][];
   currentGuess: string[];
 };
+
 export default function WordleBoard({
   selectedPhonemes,
   difficulty,
@@ -30,14 +36,26 @@ export default function WordleBoard({
           style={{ gridTemplateColumns: `repeat(${columns}, 52px)` }}
         >
           {Array.from({ length: columns }).map((_, columnIndex) => {
-            const phoneme =
+            const submittedPhoneme =
+              guesses[rowIndex]?.[columnIndex];
+
+            const currentPhoneme =
               rowIndex === guesses.length
                 ? currentGuess[columnIndex]
-                : guesses[rowIndex]?.[columnIndex];
+                : undefined;
 
             return (
-              <div className={styles.tile} key={columnIndex}>
-                {phoneme ?? ""}
+              <div
+                className={`${styles.tile} ${
+                  submittedPhoneme
+                    ? styles[submittedPhoneme.status]
+                    : ""
+                }`}
+                key={columnIndex}
+              >
+                {submittedPhoneme?.phoneme ??
+                  currentPhoneme ??
+                  ""}
               </div>
             );
           })}

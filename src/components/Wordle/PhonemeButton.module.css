@@ -2,7 +2,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-
+  position: relative;
   width: 52px;
   height: 48px;
 
@@ -41,8 +41,8 @@
 .tooltip {
   position: absolute;
   left: 50%;
-  bottom: calc(100% + 10px);
-
+  bottom: calc(100% + 8px);
+  z-index: 20;
   transform: translateX(-50%);
 
   width: max-content;
@@ -60,12 +60,16 @@
   white-space: nowrap;
 
   opacity: 0;
+  visibility: hidden;
   pointer-events: none;
 
-  transition: opacity 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    visibility 0.2s ease;
 }
 
 .button:hover .tooltip,
 .button:focus-visible .tooltip {
   opacity: 1;
+  visibility: visible;
 }

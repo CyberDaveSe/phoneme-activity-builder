@@ -6,14 +6,23 @@ import WordlePreview from "./WordlePreview";
 import { wordleTarget } from "@/data/wordleTarget";
 import styles from "@/app/wordle/Wordle.module.css";
 
+type GuessResult = {
+  phoneme: string;
+  status: "correct" | "present" | "absent";
+};
+
 export default function WordleBuilder() {
   const [selectedPhonemes, setSelectedPhonemes] = useState<string[]>([]);
   
-  const [guesses, setGuesses] = useState<string[][]>([]);
+  const [guesses, setGuesses] = useState<GuessResult[][]>([]);
   const [currentGuess, setCurrentGuess] = useState<string[]>([]);
 
   const [difficulty, setDifficulty] = useState("medium");
   
+  const [gameStatus, setGameStatus] = useState<
+    "playing" | "won" | "lost"
+  >("playing");
+
   const generateActivity = () => {
   setSelectedPhonemes(wordleTarget.phonemes);
 };
@@ -36,7 +45,11 @@ export default function WordleBuilder() {
   };
 
   const addGuessPhoneme = (phoneme: string) => {
+    if (gameStatus !== "playing") {
+          return;
+        }
     setCurrentGuess((current) => {
+        
       if (current.length >= 3) {
         return current;
     }
@@ -50,28 +63,73 @@ export default function WordleBuilder() {
   };
 
   const submitGuess = () => {
-    if (currentGuess.length !== wordleTarget.phonemes.length) {
+    if (gameStatus !== "playing") {
+      return;
+    }
+
+    if (currentGuess.length !== 3) {
       return;
     }
 
     if (guesses.length >= 6) {
       return;
     }
+    
+    const target = wordleTarget.phonemes;
 
-    setGuesses((current) => [...current, currentGuess]);
+    const results: GuessResult[] = currentGuess.map((phoneme) => ({
+      phoneme,
+      status: "absent",
+    }));
+
+    const remainingTargetPhonemes: string[] = [];
+
+    currentGuess.forEach((phoneme, index) => {
+      if (phoneme === target[index]) {
+        results[index].status = "correct";
+      } else {
+        remainingTargetPhonemes.push(target[index]);
+      }
+    });
+
+    currentGuess.forEach((phoneme, index) => {
+      if (results[index].status === "correct") {
+        return;
+      }
+
+      const matchingIndex = remainingTargetPhonemes.indexOf(phoneme);
+
+      if (matchingIndex !== -1) {
+        results[index].status = "present";
+        remainingTargetPhonemes.splice(matchingIndex, 1);
+      }
+    });
+    
+    const isCorrect = currentGuess.every(
+      (phoneme, index) => phoneme === target[index]
+    );
+
+    const nextGuessCount = guesses.length + 1;
+
+    if (isCorrect) {
+      setGameStatus("won");
+    } else if (nextGuessCount >= 6) {
+      setGameStatus("lost");
+    }
+
+    setGuesses((current) => [...current, results]);
     setCurrentGuess([]);
-  };
+    };
 
-  const startOver = () => {
-    setGuesses([]);
-    setCurrentGuess([]);
-  };
+    const startOver = () => {
+      setGuesses([]);
+      setCurrentGuess([]);
+      setGameStatus("playing");
+    };
 
-  const clearPhonemes = () => {
-    setSelectedPhonemes([]);
+    const clearPhonemes = () => {
+      setSelectedPhonemes([]);
   };
-
-  
 
   return (
     <main className={styles.builder}>
@@ -104,6 +162,8 @@ export default function WordleBuilder() {
             onClearCurrentGuess={clearCurrentGuess}
             onSubmitGuess={submitGuess}
             onStartOver={startOver}
+            gameStatus={gameStatus}
+            targetWord={wordleTarget.word}
         />
         </div>
       </section>
