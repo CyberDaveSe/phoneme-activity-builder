@@ -1,9 +1,19 @@
 import WordSearchBuilder from "@/components/WordSearch/WordSearchBuilder";
 
-export default function WordSearchPage() {
+type WordSearchPageProps = {
+  searchParams: Promise<{
+    activity?: string;
+  }>;
+};
+
+export default async function WordSearchPage({
+  searchParams,
+}: WordSearchPageProps) {
+  const params = await searchParams;
+
   return (
     <div className="pageContainer">
-      <WordSearchBuilder />
+      <WordSearchBuilder activityId={params.activity} />
     </div>
   );
 }

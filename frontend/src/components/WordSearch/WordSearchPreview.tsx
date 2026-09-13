@@ -4,7 +4,7 @@ import { useState } from "react";
 import WordSearchGrid, { WordTarget } from "./WordSearchGrid";
 import styles from "./WordSearch.module.css";
 
-const words: WordTarget[] = [
+const defaultWords: WordTarget[] = [
   { word: "bed", phonemes: ["b", "e", "d"] },
   { word: "thin", phonemes: ["θ", "ɪ", "n"] },
   { word: "ship", phonemes: ["ʃ", "ɪ", "p"] },
@@ -12,12 +12,26 @@ const words: WordTarget[] = [
   { word: "ring", phonemes: ["ɹ", "ɪ", "ŋ"] },
 ];
 
-export default function WordSearchPreview() {
+type WordSearchPreviewProps = {
+  targetWords?: WordTarget[];
+  hintsEnabled?: boolean;
+};
+
+export default function WordSearchPreview({
+  targetWords = defaultWords,
+  hintsEnabled = false,
+}: WordSearchPreviewProps) {
   const [foundWords, setFoundWords] = useState<string[]>([]);
   const [resetVersion, setResetVersion] = useState(0);
 
   const handleWordFound = (wordKey: string) => {
-    setFoundWords((current) => [...current, wordKey]);
+    setFoundWords((current) => {
+      if (current.includes(wordKey)) {
+        return current;
+      }
+
+      return [...current, wordKey];
+    });
   };
 
   const resetGame = () => {
@@ -31,7 +45,7 @@ export default function WordSearchPreview() {
 
       <WordSearchGrid
         key={resetVersion}
-        targetWords={words}
+        targetWords={targetWords}
         foundWords={foundWords}
         onWordFound={handleWordFound}
       />
@@ -40,16 +54,20 @@ export default function WordSearchPreview() {
         <h3>Find these words</h3>
 
         <ul>
-          {words.map((entry) => {
+          {targetWords.map((entry) => {
             const wordKey = entry.phonemes.join("|");
             const found = foundWords.includes(wordKey);
 
             return (
               <li
-                key={entry.word}
+                key={`${entry.word}-${wordKey}`}
                 className={found ? styles.foundWord : ""}
               >
-                {entry.phonemes.join(" ")}
+                <div>{entry.phonemes.join(" ")}</div>
+
+                {hintsEnabled && entry.hint && (
+                  <small>{entry.hint}</small>
+                )}
               </li>
             );
           })}
