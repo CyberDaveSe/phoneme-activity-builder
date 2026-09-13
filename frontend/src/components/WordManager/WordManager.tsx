@@ -20,6 +20,16 @@ type Word = {
   phonemes: Phoneme[];
 };
 
+function getDifficultyFromPhonemeCount(
+  count: number
+): Word["difficulty"] | null {
+  if (count === 3) return "EASY";
+  if (count === 4) return "MEDIUM";
+  if (count === 5) return "HARD";
+
+  return null;
+}
+
 export default function WordManager() {
   const [words, setWords] = useState<Word[]>([]);
   const [loading, setLoading] = useState(true);
@@ -27,8 +37,6 @@ export default function WordManager() {
 
   const [text, setText] = useState("");
   const [hint, setHint] = useState("");
-  const [difficulty, setDifficulty] =
-    useState<Word["difficulty"]>("EASY");
   const [phonemes, setPhonemes] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
 
@@ -72,7 +80,6 @@ export default function WordManager() {
   function resetForm() {
     setText("");
     setHint("");
-    setDifficulty("EASY");
     setPhonemes([]);
     setEditingId(null);
     setError("");
@@ -82,7 +89,6 @@ export default function WordManager() {
     setEditingId(word.id);
     setText(word.text);
     setHint(word.hint ?? "");
-    setDifficulty(word.difficulty);
     setPhonemes(
       [...word.phonemes]
         .sort((a, b) => a.position - b.position)
@@ -104,6 +110,16 @@ export default function WordManager() {
       return;
     }
 
+    const derivedDifficulty =
+      getDifficultyFromPhonemeCount(phonemes.length);
+
+    if (!derivedDifficulty) {
+      setError(
+        "Wordle-compatible words must contain between 3 and 5 phonemes."
+      );
+      return;
+    }
+
     try {
       setSaving(true);
       setError("");
@@ -120,7 +136,7 @@ export default function WordManager() {
           body: JSON.stringify({
             text: text.trim(),
             hint: hint.trim(),
-            difficulty,
+            difficulty: derivedDifficulty,
             phonemes,
           }),
         }
@@ -234,22 +250,6 @@ export default function WordManager() {
               onChange={(event) => setHint(event.target.value)}
             />
           </label>
-
-          <label>
-            Difficulty
-            <select
-              value={difficulty}
-              onChange={(event) =>
-                setDifficulty(
-                  event.target.value as Word["difficulty"]
-                )
-              }
-            >
-              <option value="EASY">Easy</option>
-              <option value="MEDIUM">Medium</option>
-              <option value="HARD">Hard</option>
-            </select>
-          </label>
         </div>
 
         <div className={styles.phonemeSelector}>
@@ -258,6 +258,18 @@ export default function WordManager() {
           <p className={styles.phonemeInstructions}>
             Select each phoneme in the order it occurs in the word.
           </p>
+
+          {phonemes.length > 0 && (
+           <p className={styles.phonemeInstructions}>
+              {phonemes.length} phoneme
+              {phonemes.length !== 1 ? "s" : ""} selected
+              {getDifficultyFromPhonemeCount(phonemes.length)
+              ? ` — ${getDifficultyFromPhonemeCount(
+                  phonemes.length
+                  )!.toLowerCase()} difficulty`
+              : " — not compatible with Wordle"}
+           </p>
+          )}
 
           {phonemes.length > 0 && (
             <div className={styles.selectedPhonemes}>
