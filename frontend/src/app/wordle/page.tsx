@@ -1,9 +1,19 @@
 import WordleBuilder from "@/components/Wordle/WordleBuilder";
 
-export default function WordlePage() {
+type WordlePageProps = {
+  searchParams: Promise<{
+    activity?: string;
+  }>;
+};
+
+export default async function WordlePage({
+  searchParams,
+}: WordlePageProps) {
+  const params = await searchParams;
+
   return (
     <div className="pageContainer">
-      <WordleBuilder />
+      <WordleBuilder activityId={params.activity} />
     </div>
   );
 }

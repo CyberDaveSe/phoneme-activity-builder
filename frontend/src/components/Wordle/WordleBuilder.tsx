@@ -1,178 +1,311 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import WordleSettings from "./WordleSettings";
 import WordlePreview from "./WordlePreview";
-import { wordleTarget } from "@/data/wordleTarget";
 import styles from "@/app/wordle/Wordle.module.css";
-import { generateWordleHtml } from "@/utils/generateWordleHtml";
 
 type GuessResult = {
   phoneme: string;
   status: "correct" | "present" | "absent";
 };
 
-export default function WordleBuilder() {
+type GameStatus = "playing" | "won" | "lost";
+
+type ActivityPhoneme = {
+  id: number;
+  symbol: string;
+  position: number;
+  wordId: number;
+};
+
+type ActivityWord = {
+  activityId: number;
+  wordId: number;
+  word: {
+    id: number;
+    text: string;
+    hint: string | null;
+    difficulty: "EASY" | "MEDIUM" | "HARD";
+    phonemes: ActivityPhoneme[];
+  };
+};
+
+type Activity = {
+  id: number;
+  name: string;
+  type: "WORDLE" | "WORD_SEARCH";
+  difficulty: "EASY" | "MEDIUM" | "HARD";
+  hintsEnabled: boolean;
+  words: ActivityWord[];
+};
+
+type WordleBuilderProps = {
+  activityId?: string;
+};
+
+export default function WordleBuilder({
+  activityId,
+}: WordleBuilderProps) {
+  const [activity, setActivity] = useState<Activity | null>(null);
+  const [loadingActivity, setLoadingActivity] = useState(Boolean(activityId));
+  const [activityError, setActivityError] = useState("");
+
   const [selectedPhonemes, setSelectedPhonemes] = useState<string[]>([]);
-  
   const [guesses, setGuesses] = useState<GuessResult[][]>([]);
   const [currentGuess, setCurrentGuess] = useState<string[]>([]);
-
   const [difficulty, setDifficulty] = useState("medium");
   
-  const [gameStatus, setGameStatus] = useState<
-    "playing" | "won" | "lost"
-  >("playing");
+  const [gameStatus, setGameStatus] =
+    useState<GameStatus>("playing");
 
-  const generateActivity = () => {
-    const html = generateWordleHtml();
+  useEffect(() => {
+    if (!activityId) {
+      return;
+    }
 
-    const blob = new Blob([html], {
-      type: "text/html;charset=utf-8",
-    });
+    async function loadActivity() {
+      try {
+        setLoadingActivity(true);
+        setActivityError("");
 
-    const url = URL.createObjectURL(blob);
+        const response = await fetch(`/api/activities/${activityId}`);
 
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "phoneme-wordle.html";
+        if (!response.ok) {
+          throw new Error("Unable to load activity");
+        }
 
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+        const data: Activity = await response.json();
 
-    URL.revokeObjectURL(url);
-  };
+        if (data.type !== "WORDLE") {
+          throw new Error("The selected activity is not a Wordle activity");
+        }
+
+        if (data.words.length === 0) {
+          throw new Error("This activity does not contain a target word");
+        }
+
+        const targetWord = data.words[0].word;
+        const targetPhonemes = targetWord.phonemes
+          .sort((a, b) => a.position - b.position)
+          .map((phoneme) => phoneme.symbol);
+
+        setActivity(data);
+        setSelectedPhonemes(targetPhonemes);
+        setDifficulty(data.difficulty.toLowerCase());
+        setGuesses([]);
+        setCurrentGuess([]);
+        setGameStatus("playing");
+      } catch (error) {
+        console.error(error);
+
+        setActivityError(
+          error instanceof Error
+            ? error.message
+            : "Unable to load activity"
+        );
+      } finally {
+        setLoadingActivity(false);
+      }
+    }
+
+    loadActivity();
+  }, [activityId]);
+
+  const targetPhonemes =
+    activity?.words[0]?.word.phonemes
+      .slice()
+      .sort((a, b) => a.position - b.position)
+      .map((phoneme) => phoneme.symbol) ?? selectedPhonemes;
+
+  const targetLength = targetPhonemes.length;
+
+  const gameplayDifficulty =
+  targetLength === 3
+    ? "easy"
+    : targetLength === 4
+      ? "medium"
+      : targetLength === 5
+        ? "hard"
+        : difficulty;
 
   const addPhoneme = (phoneme: string) => {
-   setSelectedPhonemes((current) => {
-     const maximumLength =
-       difficulty === "easy"
-         ? 3
-         : difficulty === "medium"
-           ? 4
-           : 5;
+    if (activityId) {
+      return;
+    }
 
-     if (current.length >= maximumLength) {
-       return current;
-     }
+    setSelectedPhonemes((current) => {
+      const maximumLength =
+        difficulty === "easy"
+          ? 3
+          : difficulty === "medium"
+            ? 4
+            : 5;
 
-     return [...current, phoneme];
-   });
+      if (current.length >= maximumLength) {
+        return current;
+      }
+
+      return [...current, phoneme];
+    });
   };
 
   const addGuessPhoneme = (phoneme: string) => {
     if (gameStatus !== "playing") {
-          return;
-        }
-    setCurrentGuess((current) => {
-        
-      if (current.length >= 3) {
-        return current;
+      return;
     }
-  
+
+    setCurrentGuess((current) => {
+      if (
+        targetLength === 0 ||
+        current.length >= targetLength
+      ) {
+        return current;
+      }
+
       return [...current, phoneme];
     });
   };
-  
+
   const clearCurrentGuess = () => {
     setCurrentGuess([]);
   };
 
   const submitGuess = () => {
-    if (gameStatus !== "playing") {
-      return;
-    }
-
-    if (currentGuess.length !== 3) {
+    if (
+      gameStatus !== "playing" ||
+      targetLength === 0 ||
+      currentGuess.length !== targetLength
+    ) {
       return;
     }
 
     if (guesses.length >= 6) {
       return;
     }
-    
-    const target = wordleTarget.phonemes;
 
-    const results: GuessResult[] = currentGuess.map((phoneme) => ({
-      phoneme,
-      status: "absent",
-    }));
+    const remainingTarget = [...targetPhonemes];
 
-    const remainingTargetPhonemes: string[] = [];
+    const results: GuessResult[] = currentGuess.map(
+      (phoneme, index) => {
+        if (phoneme === targetPhonemes[index]) {
+          remainingTarget[index] = "";
 
-    currentGuess.forEach((phoneme, index) => {
-      if (phoneme === target[index]) {
-        results[index].status = "correct";
-      } else {
-        remainingTargetPhonemes.push(target[index]);
+          return {
+            phoneme,
+            status: "correct",
+          };
+        }
+
+        return {
+          phoneme,
+          status: "absent",
+        };
       }
-    });
+    );
 
-    currentGuess.forEach((phoneme, index) => {
-      if (results[index].status === "correct") {
+    results.forEach((result, index) => {
+      if (result.status === "correct") {
         return;
       }
 
-      const matchingIndex = remainingTargetPhonemes.indexOf(phoneme);
+      const targetIndex = remainingTarget.indexOf(
+        currentGuess[index]
+      );
 
-      if (matchingIndex !== -1) {
-        results[index].status = "present";
-        remainingTargetPhonemes.splice(matchingIndex, 1);
+      if (targetIndex !== -1) {
+        result.status = "present";
+        remainingTarget[targetIndex] = "";
       }
     });
-    
+
     const isCorrect = currentGuess.every(
-      (phoneme, index) => phoneme === target[index]
+      (phoneme, index) =>
+        phoneme === targetPhonemes[index]
     );
 
     const nextGuessCount = guesses.length + 1;
+
+    setGuesses((current) => [...current, results]);
+    setCurrentGuess([]);
 
     if (isCorrect) {
       setGameStatus("won");
     } else if (nextGuessCount >= 6) {
       setGameStatus("lost");
     }
-
-    setGuesses((current) => [...current, results]);
-    setCurrentGuess([]);
-    };
-
-    const startOver = () => {
-      setGuesses([]);
-      setCurrentGuess([]);
-      setGameStatus("playing");
-    };
-
-    const clearPhonemes = () => {
-      setSelectedPhonemes([]);
   };
+
+  const startOver = () => {
+    setGuesses([]);
+    setCurrentGuess([]);
+    setGameStatus("playing");
+  };
+
+  const clearPhonemes = () => {
+    if (!activityId) {
+      setSelectedPhonemes([]);
+    }
+  };
+
+  if (loadingActivity) {
+    return (
+      <main className={styles.builder}>
+        <p>Loading saved Wordle activity...</p>
+      </main>
+    );
+  }
+
+  if (activityError) {
+    return (
+      <main className={styles.builder}>
+        <h1>Unable to open activity</h1>
+        <p>{activityError}</p>
+      </main>
+    );
+  }
 
   return (
     <main className={styles.builder}>
       <header className={styles.header}>
-        <h1>Wordle Activity Builder</h1>
+        <h1>
+          {activity
+            ? activity.name
+            : "Wordle Activity Builder"}
+        </h1>
 
         <p>
-          Create a phoneme-based Wordle activity for classroom use.
+          {activity
+            ? `Target word: ${activity.words[0].word.text}`
+            : "Create a phoneme-based Wordle activity for classroom use."}
         </p>
+
+        {activity?.hintsEnabled &&
+          activity.words[0].word.hint && (
+            <p>
+              <strong>Hint:</strong>{" "}
+              {activity.words[0].word.hint}
+            </p>
+          )}
       </header>
 
       <section className={styles.workspace}>
-        <div className={styles.panel}>
-          <WordleSettings
-            selectedPhonemes={selectedPhonemes}
-            onAddPhoneme={addPhoneme}
-            onClearPhonemes={clearPhonemes}
-            difficulty={difficulty}
-            onDifficultyChange={setDifficulty}
-          />
-        </div>
+        {!activityId && (
+          <div className={styles.panel}>
+            <WordleSettings
+              selectedPhonemes={selectedPhonemes}
+              onAddPhoneme={addPhoneme}
+              onClearPhonemes={clearPhonemes}
+              difficulty={difficulty}
+              onDifficultyChange={setDifficulty}
+            />
+          </div>
+        )}
 
         <div className={styles.panel}>
-          <WordlePreview 
+          <WordlePreview
             selectedPhonemes={selectedPhonemes}
-            difficulty={difficulty} 
+            difficulty={activity ? gameplayDifficulty : difficulty}
             guesses={guesses}
             currentGuess={currentGuess}
             onAddGuessPhoneme={addGuessPhoneme}
@@ -180,19 +313,14 @@ export default function WordleBuilder() {
             onSubmitGuess={submitGuess}
             onStartOver={startOver}
             gameStatus={gameStatus}
-            targetWord={wordleTarget.word}
-        />
+            targetWord={
+              activity
+                ? activity.words[0].word.text
+                : ""
+            }
+          />
         </div>
       </section>
-
-      <button
-        type="button"
-        className={styles.generateButton}
-        onClick={generateActivity}
-      >
-        Generate Activity
-      </button>
-
     </main>
   );
 }

@@ -1,0 +1,296 @@
+.manager {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.heading {
+  margin-bottom: 1.5rem;
+}
+
+.heading h1 {
+  margin-bottom: 0.4rem;
+  color: var(--primary-dark);
+}
+
+.heading p {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-large);
+}
+
+.formSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+
+.label {
+  font-weight: 700;
+  color: var(--text);
+}
+
+.input {
+  width: 100%;
+  padding: 0.75rem 0.85rem;
+  font: inherit;
+  color: var(--text);
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-medium);
+}
+
+.input:focus {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.optionRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.radioOption,
+.checkboxOption {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.radioOption input,
+.checkboxOption input,
+.wordOption input {
+  accent-color: var(--primary-dark);
+}
+
+.helpText {
+  margin: 0;
+  font-size: 0.92rem;
+  color: var(--text-muted);
+}
+
+.wordGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+}
+
+.wordOption {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  padding: 0.9rem;
+  cursor: pointer;
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-medium);
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.wordOption:hover {
+  border-color: var(--primary);
+}
+
+.wordOption:focus-within {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.wordOptionSelected {
+  background: var(--primary-light);
+  border-color: var(--primary);
+}
+
+.wordDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.phonemes {
+  font-size: 0.95rem;
+  color: var(--primary-dark);
+}
+
+.wordDifficulty {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.primaryButton {
+  align-self: flex-start;
+  padding: 0.75rem 1.15rem;
+  font: inherit;
+  font-weight: 700;
+  color: white;
+  cursor: pointer;
+  background: var(--primary-dark);
+  border: 0;
+  border-radius: var(--radius-medium);
+}
+
+.primaryButton:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.primaryButton:focus {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+
+.primaryButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.error,
+.success {
+  padding: 0.85rem 1rem;
+  margin-bottom: 1rem;
+  border-radius: var(--radius-medium);
+}
+
+.error {
+  background: #f8dddd;
+  border: 1px solid #b96b6b;
+}
+
+.success {
+  background: var(--primary-light);
+  border: 1px solid var(--primary);
+}
+
+.activitySection {
+  margin-top: 2rem;
+}
+
+.activitySection h2 {
+  color: var(--primary-dark);
+}
+
+.activityGrid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.activityCard {
+  padding: 1.2rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-large);
+}
+
+.activityHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.activityHeader h3 {
+  margin: 0;
+  color: var(--text);
+}
+
+.activityType {
+  margin: 0.25rem 0 0;
+  color: var(--text-muted);
+}
+
+.difficultyBadge {
+  padding: 0.3rem 0.55rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  white-space: nowrap;
+  background: var(--primary-light);
+  border-radius: var(--radius-small);
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  margin: 1rem 0 0;
+}
+
+.details div {
+  display: grid;
+  grid-template-columns: 70px 1fr;
+  gap: 0.5rem;
+}
+
+.details dt {
+  font-weight: 700;
+}
+
+.details dd {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.empty {
+  color: var(--text-muted);
+}
+
+@media (max-width: 600px) {
+  .form {
+    padding: 1rem;
+  }
+
+  .wordGrid,
+  .activityGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .activityHeader {
+    flex-direction: column;
+  }
+
+  .primaryButton {
+    width: 100%;
+  }
+}
+
+.cardActions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.openButton {
+  display: inline-block;
+  padding: 0.65rem 0.9rem;
+  font-weight: 700;
+  color: white;
+  text-decoration: none;
+  background: var(--primary-dark);
+  border-radius: var(--radius-medium);
+}
+
+.openButton:hover {
+  opacity: 0.9;
+}
+
+.openButton:focus {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
