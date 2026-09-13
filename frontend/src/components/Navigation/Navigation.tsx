@@ -27,6 +27,10 @@ export default function Navigation() {
                     Home
                  </Link>
 
+                 <Link href="/words" className={styles.navLink}>
+                    Words
+                 </Link>
+
                  <Link href="/wordle" className={styles.navLink}>
                     Wordle
                  </Link>
@@ -58,6 +62,10 @@ export default function Navigation() {
               >
                 <Link href="/" className={styles.mobileLink} onClick={closeMenu}>
                     Home
+                </Link>
+
+                <Link href="/words" className={styles.mobileLink} onClick={closeMenu}>
+                    Words
                 </Link>
 
                 <Link href="/wordle" className={styles.mobileLink} onClick={closeMenu}>
