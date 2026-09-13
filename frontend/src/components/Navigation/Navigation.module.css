@@ -1,8 +1,8 @@
 .header {
     position: relative;
     width: 100%;
-    border-bottom: 1px solid var(--border);
-    background-color: var(--surface);
+    border-bottom: 1px solid var(--primary-dark);
+    background-color: var(--primary-dark);
 }
 
 .container {
@@ -17,7 +17,7 @@
 }
 
 .logo {
-    color: var(--primary-dark);
+    color: #ffffff;
     font-size: 1.25rem;
     font-weight: 700;
     text-decoration: none;
@@ -39,14 +39,14 @@
 .navLink {
     padding: 10px 14px;
     border-radius: var(--radius-small);
-    color: var(--text);
+    color: #ffffff;
     font-size: 0.95rem;
     font-weight: 500;
     text-decoration: none;
 }
 
 .navLink:hover {
-    background-color: var(--primary-light);
+    background-color: rgba(255, 255, 255, 0.14);
 }
 
 .navLink:focus-visible {
@@ -61,12 +61,13 @@
     border: none;
     border-radius: var(--radius-small);
     background-color: transparent;
+    color: #ffffff;
     padding: 8px;
     cursor: pointer;
 }
 
 .menuButton:hover {
-    background-color: var(--primary-light);
+    background-color: rgba(255, 255, 255, 0.14);
 }
 
 .menuButton:focus-visible {
@@ -90,7 +91,7 @@
     min-width: 180px;
     padding: 12px;
     border: 1px solid var(--border);
-    border-radius: var(--border-medium);
+    border-radius: var(--radius-medium);
     background-color: var(--surface);
     box-shadow: 0 4px 12px rgba(66, 99, 76, 0.15);
 }
