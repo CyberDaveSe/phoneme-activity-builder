@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:16
+    container_name: phoneme-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: phoneme_user
+      POSTGRES_PASSWORD: phoneme_password
+      POSTGRES_DB: phoneme_builder
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
