@@ -71,7 +71,7 @@ export default function AboutPage() {
           }}
         >
           <iframe
-            src="YOUR_VIDEO_EMBED_URL"
+            src="https://www.youtube.com/embed/-U99olrgcKs?si=9nShXIXBld0w52sK"
             title="Phoneme Activity Builder demonstration"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
