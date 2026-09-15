@@ -3,6 +3,7 @@ import WordSearchBuilder from "@/components/WordSearch/WordSearchBuilder";
 type WordSearchPageProps = {
   searchParams: Promise<{
     activity?: string;
+    edit?: string;
   }>;
 };
 
@@ -13,7 +14,10 @@ export default async function WordSearchPage({
 
   return (
     <div className="pageContainer">
-      <WordSearchBuilder activityId={params.activity} />
+      <WordSearchBuilder
+        activityId={params.activity}
+        editMode={params.edit === "true"}
+      />
     </div>
   );
 }

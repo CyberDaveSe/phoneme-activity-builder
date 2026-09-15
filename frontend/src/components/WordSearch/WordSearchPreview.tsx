@@ -1,29 +1,59 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import WordSearchGrid, { WordTarget } from "./WordSearchGrid";
+import {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import WordSearchGrid, {
+  WordTarget,
+} from "./WordSearchGrid";
+import { generateWordSearchGrid } from "@/utils/wordSearchGenerator";
 import styles from "./WordSearch.module.css";
 
 const defaultWords: WordTarget[] = [
-  { word: "bed", phonemes: ["b", "e", "d"] },
-  { word: "thin", phonemes: ["θ", "ɪ", "n"] },
-  { word: "ship", phonemes: ["ʃ", "ɪ", "p"] },
-  { word: "jam", phonemes: ["dʒ", "æ", "m"] },
-  { word: "ring", phonemes: ["ɹ", "ɪ", "ŋ"] },
+  {
+    word: "bed",
+    phonemes: ["b", "e", "d"],
+  },
+  {
+    word: "thin",
+    phonemes: ["θ", "ɪ", "n"],
+  },
+  {
+    word: "ship",
+    phonemes: ["ʃ", "ɪ", "p"],
+  },
+  {
+    word: "jam",
+    phonemes: ["dʒ", "æ", "m"],
+  },
+  {
+    word: "ring",
+    phonemes: ["ɹ", "ɪ", "ŋ"],
+  },
 ];
 
 type WordSearchPreviewProps = {
   targetWords?: WordTarget[];
   hintsEnabled?: boolean;
+  onBoardChange?: (board: string[][]) => void;
+  initialBoard?: string[][];
+  allowRecreate?: boolean;
 };
 
 export default function WordSearchPreview({
   targetWords = defaultWords,
   hintsEnabled = false,
+  onBoardChange,
+  initialBoard,
+  allowRecreate = true,
 }: WordSearchPreviewProps) {
-  const [foundWords, setFoundWords] = useState<string[]>([]);
-  const [gameVersion, setGameVersion] = useState(0);
-  const [boardVersion, setBoardVersion] = useState(0);
+  const [foundWords, setFoundWords] =
+    useState<string[]>([]);
+
+  const [gameVersion, setGameVersion] =
+    useState(0);
 
   const targetSignature = useMemo(
     () =>
@@ -36,7 +66,13 @@ export default function WordSearchPreview({
     [targetWords]
   );
 
-  const handleWordFound = (wordKey: string) => {
+  const [grid, setGrid] = useState<string[][]>(() =>
+    initialBoard ?? generateWordSearchGrid(targetWords)
+  );
+
+  const handleWordFound = (
+    wordKey: string
+  ) => {
     setFoundWords((current) => {
       if (current.includes(wordKey)) {
         return current;
@@ -48,26 +84,48 @@ export default function WordSearchPreview({
 
   const resetGame = () => {
     setFoundWords([]);
-    setGameVersion((current) => current + 1);
+    setGameVersion(
+      (current) => current + 1
+    );
   };
 
   const recreateBoard = () => {
     setFoundWords([]);
-    setBoardVersion((current) => current + 1);
+    setGrid(
+      generateWordSearchGrid(targetWords)
+    );
+    setGameVersion(
+      (current) => current + 1
+    );
   };
 
   useEffect(() => {
     setFoundWords([]);
-    setBoardVersion((current) => current + 1);
-  }, [targetSignature]);
+
+    if (initialBoard) {
+      setGrid(initialBoard);
+    } else {
+      setGrid(
+        generateWordSearchGrid(targetWords)
+      );
+    }
+
+    setGameVersion(
+      (current) => current + 1
+    );
+  }, [targetSignature, initialBoard]);
+
+  useEffect(() => {
+    onBoardChange?.(grid);
+  }, [grid, onBoardChange]);
 
   return (
     <section>
       <h2>Preview</h2>
 
       <WordSearchGrid
-        key={boardVersion}
         targetWords={targetWords}
+        grid={grid}
         foundWords={foundWords}
         onWordFound={handleWordFound}
         gameVersion={gameVersion}
@@ -78,19 +136,31 @@ export default function WordSearchPreview({
 
         <ul>
           {targetWords.map((entry) => {
-            const wordKey = entry.phonemes.join("|");
-            const found = foundWords.includes(wordKey);
+            const wordKey =
+              entry.phonemes.join("|");
+
+            const found =
+              foundWords.includes(wordKey);
 
             return (
               <li
                 key={`${entry.word}-${wordKey}`}
-                className={found ? styles.foundWord : ""}
+                className={
+                  found
+                    ? styles.foundWord
+                    : ""
+                }
               >
-                <div>{entry.phonemes.join(" ")}</div>
+                <div>
+                  {entry.phonemes.join(" ")}
+                </div>
 
-                {hintsEnabled && entry.hint && (
-                  <small>{entry.hint}</small>
-                )}
+                {hintsEnabled &&
+                  entry.hint && (
+                    <small>
+                      {entry.hint}
+                    </small>
+                  )}
               </li>
             );
           })}
@@ -106,13 +176,15 @@ export default function WordSearchPreview({
           Reset Game
         </button>
 
-        <button
-          type="button"
-          className={styles.controlButton}
-          onClick={recreateBoard}
-        >
-          Recreate Board
-        </button>
+        {allowRecreate && (
+          <button
+            type="button"
+            className={styles.controlButton}
+            onClick={recreateBoard}
+          >
+            Recreate Board
+          </button>
+        )}
       </div>
     </section>
   );

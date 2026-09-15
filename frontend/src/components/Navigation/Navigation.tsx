@@ -31,11 +31,21 @@ export default function Navigation() {
                     Words
                  </Link>
 
+                 <Link href="/activities" className={styles.navLink}>
+                    Activities
+                 </Link>
+
                  <Link href="/wordle" className={styles.navLink}>
                     Wordle
                  </Link>
 
-                 <Link href="/word-search" className={styles.navLink}>
+                 <Link
+                 href={{
+                    pathname: "/word-search",
+                    query: {},
+                 }}
+                 className={styles.navLink}
+                 >
                     Word Search
                  </Link>
               </nav>
@@ -68,12 +78,23 @@ export default function Navigation() {
                     Words
                 </Link>
 
+                <Link href="/activities" className={styles.mobileLink} onClick={closeMenu}>
+                    Activities
+                </Link>
+
                 <Link href="/wordle" className={styles.mobileLink} onClick={closeMenu}>
                     Wordle
                 </Link>
 
-                <Link href="/word-search" className={styles.mobileLink} onClick={closeMenu}>
-                    Word Search
+                <Link
+                href={{
+                   pathname: "/word-search",
+                   query: {},
+                }}
+                className={styles.mobileLink}
+                onClick={closeMenu}
+                >
+                   Word Search
                 </Link>
 
                 <Link href="/about" className={styles.mobileLink} onClick={closeMenu}>

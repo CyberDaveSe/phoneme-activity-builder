@@ -48,6 +48,7 @@ export async function POST(request: NextRequest) {
       difficulty,
       hintsEnabled = false,
       wordIds,
+      board,
     } = body;
 
     if (
@@ -133,6 +134,9 @@ export async function POST(request: NextRequest) {
         type,
         difficulty,
         hintsEnabled,
+        ...(board !== undefined && {
+          board,
+        }),
         words: {
           create: uniqueWordIds.map((wordId) => ({
             wordId,

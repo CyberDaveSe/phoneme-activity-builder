@@ -264,6 +264,55 @@ export default function ActivityManager() {
     );
   }
 
+    async function deleteActivity(
+    activityId: number,
+    activityName: string
+    ) {
+    const confirmed = window.confirm(
+        `Delete "${activityName}"? This cannot be undone.`
+    );
+
+    if (!confirmed) {
+        return;
+    }
+
+    try {
+        setError("");
+
+        const response = await fetch(
+        `/api/activities/${activityId}`,
+        {
+            method: "DELETE",
+        }
+        );
+
+        const result = await response.json();
+
+        if (!response.ok) {
+        throw new Error(
+            result.error ?? "Failed to delete activity."
+        );
+        }
+
+        setActivities((current) =>
+        current.filter(
+            (activity) => activity.id !== activityId
+        )
+        );
+    } catch (error) {
+        console.error(
+        "Failed to delete activity:",
+        error
+        );
+
+        setError(
+        error instanceof Error
+            ? error.message
+            : "Unable to delete activity."
+        );
+    }
+    }
+
   if (loading) {
     return (
       <section className={styles.manager}>
@@ -580,6 +629,29 @@ export default function ActivityManager() {
                   >
                     Open Activity
                   </Link>
+
+                  {activity.type === "WORD_SEARCH" && (
+                    <Link
+                       href={`/word-search?activity=${activity.id}&edit=true`}
+                       className={styles.editButton}
+                    >
+                       Edit
+                    </Link>
+                  )}
+
+                  <button
+                    type="button"
+                    className={styles.deleteButton}
+                    onClick={() =>
+                      deleteActivity(
+                      activity.id,
+                      activity.name
+                    )
+                  }
+                  >
+                    Delete
+                  </button>
+
                 </div>
               </article>
             ))}

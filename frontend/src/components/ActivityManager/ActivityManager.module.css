@@ -277,7 +277,9 @@
 }
 
 .openButton {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 0.65rem 0.9rem;
   font-weight: 700;
   color: white;
@@ -291,6 +293,49 @@
 }
 
 .openButton:focus {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+
+.editButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.65rem 0.9rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  text-decoration: none;
+  background: var(--primary-light);
+  border: 1px solid var(--primary);
+  border-radius: var(--radius-medium);
+}
+
+.editButton:hover {
+  opacity: 0.9;
+}
+
+.editButton:focus {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+
+.deleteButton {
+  display: inline-block;
+  padding: 0.65rem 0.9rem;
+  font: inherit;
+  font-weight: 700;
+  color: white;
+  cursor: pointer;
+  background: #9f3f3f;
+  border: 0;
+  border-radius: var(--radius-medium);
+}
+
+.deleteButton:hover {
+  opacity: 0.9;
+}
+
+.deleteButton:focus {
   outline: 3px solid var(--focus);
   outline-offset: 3px;
 }

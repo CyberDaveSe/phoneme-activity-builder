@@ -100,6 +100,7 @@ export async function PATCH(
       difficulty,
       hintsEnabled,
       wordIds,
+      board,
     } = body;
 
     if (
@@ -202,6 +203,9 @@ export async function PATCH(
         }),
         ...(hintsEnabled !== undefined && {
           hintsEnabled,
+        }),
+        ...(board !== undefined && {
+          board,
         }),
         ...(uniqueWordIds !== undefined && {
           words: {

@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import WordSearchPreview from "./WordSearchPreview";
 import { WordTarget } from "./WordSearchGrid";
+import PhonemeButton from "@/components/Wordle/PhonemeButton";
+import { phonemeRows } from "@/data/phonemes";
 import styles from "./WordSearch.module.css";
 
 type StoredPhoneme = {
@@ -29,17 +31,29 @@ type StoredActivity = {
   type: "WORDLE" | "WORD_SEARCH";
   difficulty: "EASY" | "MEDIUM" | "HARD";
   hintsEnabled: boolean;
+  board: string[][] | null;
   words: ActivityWord[];
 };
 
 type WordSearchBuilderProps = {
   activityId?: string;
+  editMode?: boolean;
 };
 
 type SelectionMode = "MANUAL" | "RANDOM";
 type RandomDifficulty = "MIXED" | "EASY" | "MEDIUM" | "HARD";
 
 const MAX_SELECTED_WORDS = 10;
+
+function getDifficultyFromPhonemeCount(
+  count: number
+): StoredWord["difficulty"] | null {
+  if (count === 3) return "EASY";
+  if (count === 4) return "MEDIUM";
+  if (count === 5) return "HARD";
+
+  return null;
+}
 
 function mapStoredWordToTarget(word: StoredWord): WordTarget {
   return {
@@ -53,6 +67,7 @@ function mapStoredWordToTarget(word: StoredWord): WordTarget {
 
 export default function WordSearchBuilder({
   activityId,
+  editMode = false,
 }: WordSearchBuilderProps) {
   const [activity, setActivity] =
     useState<StoredActivity | null>(null);
@@ -71,6 +86,19 @@ export default function WordSearchBuilder({
     useState<RandomDifficulty>("MIXED");
 
   const [randomWordCount, setRandomWordCount] = useState(5);
+  const [activityName, setActivityName] = useState("");
+  const [hintsEnabled, setHintsEnabled] = useState(false);
+  const [savingActivity, setSavingActivity] = useState(false);
+  const [activityMessage, setActivityMessage] = useState("");
+  const [currentBoard, setCurrentBoard] =
+    useState<string[][] | null>(null);
+
+  const [showAddWordModal, setShowAddWordModal] = useState(false);
+  const [newWordText, setNewWordText] = useState("");
+  const [newWordHint, setNewWordHint] = useState("");
+  const [newWordPhonemes, setNewWordPhonemes] = useState<string[]>([]);
+  const [savingWord, setSavingWord] = useState(false);
+  const [wordFormError, setWordFormError] = useState("");
 
   useEffect(() => {
     if (activityId) {
@@ -105,7 +133,40 @@ export default function WordSearchBuilder({
             );
           }
 
-          setActivity(data);
+          if (
+            !Array.isArray(data.board) ||
+            data.board.length === 0
+          ) {
+            throw new Error(
+              "This saved Word Search activity does not contain a persisted board."
+            );
+          }
+
+          if (editMode) {
+            setActivity(null);
+            setActivityName(data.name);
+            setHintsEnabled(data.hintsEnabled);
+            setSelectedWordIds(
+              data.words.map(({ word }) => word.id)
+            );
+            setCurrentBoard(data.board);
+
+            const wordsResponse = await fetch("/api/words");
+
+            if (!wordsResponse.ok) {
+              throw new Error(
+                "Failed to load the word library for editing."
+              );
+            }
+
+            const allWords: StoredWord[] =
+              await wordsResponse.json();
+
+            setWords(allWords);
+          } else {
+            setActivity(data);
+          }
+
         } catch (error) {
           console.error(
             "Failed to load Word Search activity:",
@@ -125,6 +186,14 @@ export default function WordSearchBuilder({
       loadActivity();
       return;
     }
+
+    setActivity(null);
+    setCurrentBoard(null);
+    setSelectedWordIds([]);
+    setActivityName("");
+    setHintsEnabled(false);
+    setActivityMessage("");
+    setError("");
 
     const loadWords = async () => {
       try {
@@ -154,7 +223,7 @@ export default function WordSearchBuilder({
     };
 
     loadWords();
-  }, [activityId]);
+  }, [activityId, editMode]);
 
   const savedTargetWords: WordTarget[] =
     activity?.words.map(({ word }) =>
@@ -216,6 +285,232 @@ export default function WordSearchBuilder({
 
   function removeAllWords() {
     setSelectedWordIds([]);
+  }
+
+  function openAddWordModal() {
+    const proposedWord = searchText.trim();
+
+    if (!proposedWord) {
+      return;
+    }
+
+    setNewWordText(proposedWord);
+    setNewWordHint("");
+    setNewWordPhonemes([]);
+    setWordFormError("");
+    setShowAddWordModal(true);
+  }
+
+  function closeAddWordModal() {
+    if (savingWord) {
+      return;
+    }
+
+    setShowAddWordModal(false);
+    setNewWordText("");
+    setNewWordHint("");
+    setNewWordPhonemes([]);
+    setWordFormError("");
+  }
+
+  function addNewWordPhoneme(symbol: string) {
+    if (newWordPhonemes.length >= 5) {
+      setWordFormError(
+        "Words can contain a maximum of 5 phonemes."
+      );
+      return;
+    }
+
+    setWordFormError("This activity builder supports a maximum of 5 phonemes per word.");
+    setNewWordPhonemes((current) => [...current, symbol]);
+  }
+
+  function removeNewWordPhoneme(index: number) {
+    setWordFormError("");
+
+    setNewWordPhonemes((current) =>
+      current.filter(
+        (_, currentIndex) => currentIndex !== index
+      )
+    );
+  }
+
+  async function saveNewWord() {
+    const trimmedWord = newWordText.trim();
+
+    if (!trimmedWord) {
+      setWordFormError("Enter a word.");
+      return;
+    }
+
+    const difficulty = getDifficultyFromPhonemeCount(
+      newWordPhonemes.length
+    );
+
+    if (!difficulty) {
+      setWordFormError(
+        "Select between 3 and 5 phonemes."
+      );
+      return;
+    }
+
+    if (selectedWordIds.length >= MAX_SELECTED_WORDS) {
+      setWordFormError(
+        `A Word Search can contain up to ${MAX_SELECTED_WORDS} words.`
+      );
+      return;
+    }
+
+    try {
+      setSavingWord(true);
+      setWordFormError("");
+
+      const response = await fetch("/api/words", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          text: trimmedWord,
+          hint: newWordHint.trim(),
+          difficulty,
+          phonemes: newWordPhonemes,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          result.error ?? "Failed to create word."
+        );
+      }
+
+      const createdWord = result as StoredWord;
+
+      setWords((current) => [
+        ...current,
+        createdWord,
+      ]);
+
+      setSelectedWordIds((current) => [
+        ...current,
+        createdWord.id,
+      ]);
+
+      setSearchText("");
+      setShowAddWordModal(false);
+      setNewWordText("");
+      setNewWordHint("");
+      setNewWordPhonemes([]);
+    } catch (error) {
+      console.error("Failed to create word:", error);
+
+      setWordFormError(
+        error instanceof Error
+          ? error.message
+          : "Unable to create word."
+      );
+    } finally {
+      setSavingWord(false);
+    }
+  }  
+
+  function getWordSearchDifficulty():
+    "EASY" | "MEDIUM" | "HARD" {
+    if (
+      selectionMode === "RANDOM" &&
+      randomDifficulty !== "MIXED"
+    ) {
+      return randomDifficulty;
+    }
+
+    if (
+      selectedWords.some(
+        (word) => word.difficulty === "HARD"
+      )
+    ) {
+      return "HARD";
+    }
+
+    if (
+      selectedWords.some(
+        (word) => word.difficulty === "MEDIUM"
+      )
+    ) {
+      return "MEDIUM";
+    }
+
+    return "EASY";
+  }
+
+  async function saveActivity() {
+    if (!activityName.trim()) {
+      setError("Enter an activity name.");
+      return;
+    }
+
+    if (selectedWordIds.length === 0) {
+      setError("Select at least one word.");
+      return;
+    }
+
+    if (!currentBoard) {
+      setError(
+        "The Word Search board has not been generated yet."
+      );
+      return;
+    }
+
+    try {
+      setSavingActivity(true);
+      setError("");
+      setActivityMessage("");
+
+      const endpoint =
+        editMode && activityId
+          ? `/api/activities/${activityId}`
+          : "/api/activities";
+
+      const response = await fetch(endpoint, {
+        method: editMode ? "PATCH" : "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: activityName.trim(),
+          type: "WORD_SEARCH",
+          difficulty: getWordSearchDifficulty(),
+          hintsEnabled,
+          wordIds: selectedWordIds,
+          board: currentBoard,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          result.error ?? "Failed to save activity."
+        );
+      }
+
+      setActivityMessage(
+        editMode
+          ? `Activity "${result.name}" updated successfully.`
+          : `Activity "${result.name}" saved successfully.`
+      );
+    } catch (error) {
+      console.error("Failed to save activity:", error);
+
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Unable to save activity."
+      );
+    } finally {
+      setSavingActivity(false);
+    }
   }
 
   function generateRandomWords() {
@@ -290,6 +585,8 @@ export default function WordSearchBuilder({
         <WordSearchPreview
           targetWords={savedTargetWords}
           hintsEnabled={activity.hintsEnabled}
+          initialBoard={activity.board ?? undefined}
+          allowRecreate={false}
         />
 
         <p>
@@ -370,9 +667,19 @@ export default function WordSearchBuilder({
                   <h3>Search Results</h3>
 
                   {filteredWords.length === 0 ? (
-                    <p>
-                      No matching stored words were found.
-                    </p>
+                    <div>
+                      <p>
+                        No matching stored words were found.
+                      </p>
+
+                      <button
+                        type="button"
+                        className={styles.actionButton}
+                        onClick={openAddWordModal}
+                      >
+                        + Add &quot;{searchText.trim()}&quot; to library
+                      </button>
+                    </div>
                   ) : (
                     <ul className={styles.wordResults}>
                       {filteredWords.map((word) => {
@@ -530,6 +837,66 @@ export default function WordSearchBuilder({
             )}
           </div>
 
+          <div className={styles.activitySettings}>
+            <h3>Activity Settings</h3>
+
+            <label className={styles.builderField}>
+              Activity name
+              <input
+                type="text"
+                value={activityName}
+                onChange={(event) =>
+                  setActivityName(event.target.value)
+                }
+                placeholder="e.g. Week 3 Word Search"
+              />
+            </label>
+
+            <label className={styles.checkboxOption}>
+              <input
+                type="checkbox"
+                checked={hintsEnabled}
+                onChange={(event) =>
+                  setHintsEnabled(event.target.checked)
+                }
+              />
+              Enable hints
+            </label>
+
+            <p>
+              Saved difficulty:{" "}
+              <strong>
+                {getWordSearchDifficulty()
+                  .toLowerCase()
+                  .replace(/^./, (letter) =>
+                    letter.toUpperCase()
+                  )}
+              </strong>
+            </p>
+
+            <button
+              type="button"
+              className={styles.actionButton}
+              onClick={saveActivity}
+              disabled={
+                savingActivity ||
+                selectedWordIds.length === 0
+              }
+            >
+              {savingActivity
+                ? editMode
+                  ? "Updating..."
+                  : "Saving..."
+                : editMode
+                  ? "Update Activity"
+                  : "Save Activity"}
+            </button>
+          </div>
+
+          {activityMessage && (
+            <p role="status">{activityMessage}</p>
+          )}
+
           {error && (
             <p role="alert">{error}</p>
           )}
@@ -539,9 +906,157 @@ export default function WordSearchBuilder({
       {builderTargetWords.length > 0 && (
         <WordSearchPreview
           targetWords={builderTargetWords}
-          hintsEnabled={false}
+          hintsEnabled={hintsEnabled}
+          initialBoard={
+            editMode && currentBoard
+              ? currentBoard
+              : undefined
+          }
+          onBoardChange={setCurrentBoard}
         />
       )}
+
+      {showAddWordModal && (
+        <div
+          className={styles.modalBackdrop}
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) {
+              closeAddWordModal();
+            }
+          }}
+        >
+          <section
+            className={styles.modal}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="add-word-title"
+          >
+            <div className={styles.modalHeader}>
+              <h2 id="add-word-title">Add New Word</h2>
+
+              <button
+                type="button"
+                className={styles.secondaryButton}
+                onClick={closeAddWordModal}
+                disabled={savingWord}
+                aria-label="Close add word dialog"
+              >
+                ×
+              </button>
+            </div>
+
+            <label className={styles.builderField}>
+              Word
+              <input
+                type="text"
+                value={newWordText}
+                onChange={(event) =>
+                  setNewWordText(event.target.value)
+                }
+                disabled={savingWord}
+              />
+            </label>
+
+            <label className={styles.builderField}>
+              Hint (optional)
+              <input
+                type="text"
+                value={newWordHint}
+                onChange={(event) =>
+                  setNewWordHint(event.target.value)
+                }
+                disabled={savingWord}
+              />
+            </label>
+
+            <div className={styles.modalPhonemes}>
+              <h3>Phonemes</h3>
+
+              <p>
+                Select each phoneme in the order it occurs
+                in the word.
+              </p>
+
+              <p>
+                {newWordPhonemes.length} / 5 phonemes selected
+                {getDifficultyFromPhonemeCount(newWordPhonemes.length)
+                  ? ` — ${getDifficultyFromPhonemeCount(
+                      newWordPhonemes.length
+                    )!.toLowerCase()} difficulty`
+                  : newWordPhonemes.length > 0
+                    ? " — select 3 to 5 phonemes"
+                    : ""}
+              </p>
+
+              {newWordPhonemes.length > 0 && (
+                <div className={styles.selectedPhonemes}>
+                  {newWordPhonemes.map((symbol, index) => (
+                    <button
+                      key={`${symbol}-${index}`}
+                      type="button"
+                      className={styles.selectedPhoneme}
+                      onClick={() =>
+                        removeNewWordPhoneme(index)
+                      }
+                      disabled={savingWord}
+                      aria-label={`Remove phoneme ${symbol}`}
+                    >
+                      {symbol} ×
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              <div className={styles.phonemeKeyboard}>
+                {phonemeRows.map((row, rowIndex) => (
+                  <div
+                    key={rowIndex}
+                    className={styles.phonemeRow}
+                  >
+                    {row.map((phoneme) => (
+                      <PhonemeButton
+                        key={phoneme.symbol}
+                        phoneme={phoneme.symbol}
+                        label={phoneme.label}
+                        example={phoneme.example}
+                        onSelect={addNewWordPhoneme}
+                      />
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {wordFormError && (
+              <p role="alert">{wordFormError}</p>
+            )}
+
+            <div className={styles.modalActions}>
+              <button
+                type="button"
+                className={styles.secondaryButton}
+                onClick={closeAddWordModal}
+                disabled={savingWord}
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                className={styles.actionButton}
+                onClick={saveNewWord}
+                disabled={savingWord}
+              >
+                {savingWord
+                  ? "Saving..."
+                  : "Save & Select"}
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
+
     </main>
   );
 }

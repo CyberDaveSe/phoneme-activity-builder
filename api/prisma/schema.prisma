@@ -46,6 +46,7 @@ model Activity {
   type         ActivityType
   difficulty   Difficulty
   hintsEnabled Boolean      @default(false)
+  board        Json?
   words        ActivityWord[]
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
