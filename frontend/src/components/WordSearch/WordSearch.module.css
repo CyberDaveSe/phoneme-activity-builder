@@ -1,6 +1,5 @@
 .grid {
   display: grid;
-  grid-template-columns: repeat(6, 48px);
   gap: 6px;
 
   width: fit-content;
@@ -60,6 +59,207 @@
   border-radius: 6px;
   cursor: pointer;
   font-weight: 600;
+}
+
+
+.selectionModes {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 20px 0 24px;
+}
+
+.modeOption {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 10px 16px;
+
+  border: 1px solid var(--border);
+  border-radius: var(--radius-small);
+
+  background-color: var(--surface);
+  color: var(--primary-dark);
+
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.modeOption:hover {
+  background-color: var(--primary-light);
+}
+
+.modeOption:has(input:checked) {
+  border-color: var(--primary);
+  background-color: var(--primary-light);
+}
+
+.modeOption input {
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+.builderControls {
+  display: flex;
+  justify-content: center;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 16px;
+
+  margin: 20px 0;
+}
+
+.builderField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  color: var(--primary-dark);
+  font-weight: 600;
+}
+
+.builderField input,
+.builderField select {
+  min-width: 180px;
+  padding: 10px 12px;
+
+  border: 1px solid var(--border);
+  border-radius: var(--radius-small);
+
+  background-color: var(--surface);
+  color: var(--text);
+
+  font: inherit;
+}
+
+.builderField input:focus,
+.builderField select:focus {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.actionButton {
+  padding: 10px 18px;
+
+  border: none;
+  border-radius: var(--radius-small);
+
+  background-color: var(--primary);
+  color: #ffffff;
+
+  font: inherit;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    transform 0.1s ease;
+}
+
+.actionButton:hover:not(:disabled) {
+  background-color: var(--primary-dark);
+}
+
+.actionButton:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.actionButton:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+
+.actionButton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.secondaryButton {
+  padding: 7px 12px;
+
+  border: 1px solid var(--primary);
+  border-radius: var(--radius-small);
+
+  background-color: var(--surface);
+  color: var(--primary-dark);
+
+  font: inherit;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.secondaryButton:hover:not(:disabled) {
+  background-color: var(--primary-light);
+}
+
+.secondaryButton:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.secondaryButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.wordResults {
+  max-width: 620px;
+  margin: 20px auto;
+  padding: 0;
+
+  list-style: none;
+}
+
+.wordResult {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+
+  padding: 10px 12px;
+  margin-bottom: 8px;
+
+  border: 1px solid var(--border);
+  border-radius: var(--radius-small);
+
+  background-color: var(--surface);
+}
+
+.wordDetails {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.selectedWords {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+
+  margin: 16px 0 24px;
+  padding: 0;
+
+  list-style: none;
+}
+
+.selectedWord {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 8px 10px;
+
+  border: 1px solid var(--border);
+  border-radius: var(--radius-small);
+
+  background-color: var(--primary-light);
+  color: var(--primary-dark);
 }
 
 .found {

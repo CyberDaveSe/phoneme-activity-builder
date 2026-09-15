@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import WordSearchGrid, { WordTarget } from "./WordSearchGrid";
 import styles from "./WordSearch.module.css";
 
@@ -22,7 +22,19 @@ export default function WordSearchPreview({
   hintsEnabled = false,
 }: WordSearchPreviewProps) {
   const [foundWords, setFoundWords] = useState<string[]>([]);
-  const [resetVersion, setResetVersion] = useState(0);
+  const [gameVersion, setGameVersion] = useState(0);
+  const [boardVersion, setBoardVersion] = useState(0);
+
+  const targetSignature = useMemo(
+    () =>
+      targetWords
+        .map(
+          (target) =>
+            `${target.word}:${target.phonemes.join("|")}`
+        )
+        .join("::"),
+    [targetWords]
+  );
 
   const handleWordFound = (wordKey: string) => {
     setFoundWords((current) => {
@@ -36,18 +48,29 @@ export default function WordSearchPreview({
 
   const resetGame = () => {
     setFoundWords([]);
-    setResetVersion((current) => current + 1);
+    setGameVersion((current) => current + 1);
   };
+
+  const recreateBoard = () => {
+    setFoundWords([]);
+    setBoardVersion((current) => current + 1);
+  };
+
+  useEffect(() => {
+    setFoundWords([]);
+    setBoardVersion((current) => current + 1);
+  }, [targetSignature]);
 
   return (
     <section>
       <h2>Preview</h2>
 
       <WordSearchGrid
-        key={resetVersion}
+        key={boardVersion}
         targetWords={targetWords}
         foundWords={foundWords}
         onWordFound={handleWordFound}
+        gameVersion={gameVersion}
       />
 
       <div className={styles.wordList}>
@@ -74,13 +97,23 @@ export default function WordSearchPreview({
         </ul>
       </div>
 
-      <button
-        type="button"
-        className={styles.controlButton}
-        onClick={resetGame}
-      >
-        Reset Game
-      </button>
+      <div className={styles.controls}>
+        <button
+          type="button"
+          className={styles.controlButton}
+          onClick={resetGame}
+        >
+          Reset Game
+        </button>
+
+        <button
+          type="button"
+          className={styles.controlButton}
+          onClick={recreateBoard}
+        >
+          Recreate Board
+        </button>
+      </div>
     </section>
   );
 }
