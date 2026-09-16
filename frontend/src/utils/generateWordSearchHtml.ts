@@ -1,23 +1,23 @@
 import { phonemeRows } from "@/data/phonemes";
 
-export function generateWordSearchHtml() {
-  const grid = [
-    ["b", "e", "d", "s", "ɐ", "k"],
-    ["θ", "m", "ɹ", "ʃ", "ɪ", "p"],
-    ["ɪ", "dʒ", "ɪ", "æ", "n", "t"],
-    ["n", "æ", "ŋ", "m", "o", "l"],
-    ["f", "m", "k", "ɪ", "v", "e"],
-    ["s", "t", "ɔ", "ŋ", "p", "n"],
-  ];
+type WordSearchExportWord = {
+  word: string;
+  phonemes: string[];
+};
 
-  const targetWords = [
-    { word: "bed", phonemes: ["b", "e", "d"] },
-    { word: "thin", phonemes: ["θ", "ɪ", "n"] },
-    { word: "ship", phonemes: ["ʃ", "ɪ", "p"] },
-    { word: "jam", phonemes: ["dʒ", "æ", "m"] },
-    { word: "ring", phonemes: ["ɹ", "ɪ", "ŋ"] },
-  ];
-  
+type WordSearchExportData = {
+  name: string;
+  board: string[][];
+  hintsEnabled: boolean;
+  words: WordSearchExportWord[];
+};
+
+export function generateWordSearchHtml(
+  activity: WordSearchExportData
+) {
+  const grid = activity.board;
+  const targetWords = activity.words;
+
   const phonemeHints = Object.fromEntries(
     phonemeRows
       .flat()
@@ -48,8 +48,8 @@ export function generateWordSearchHtml() {
       margin: 0;
       padding: 32px 16px;
 
-      background: #fdf4f6;
-      color: #31443a;
+      background: #eef7f1;
+      color: #24382d;
 
       font-family: Arial, sans-serif;
     }
@@ -62,7 +62,7 @@ export function generateWordSearchHtml() {
 
     h1 {
       margin-bottom: 8px;
-      color: #42634c;
+      color: #315c43;
     }
 
     .instructions {
@@ -71,17 +71,17 @@ export function generateWordSearchHtml() {
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(6, 48px);
+      grid-template-columns: repeat(${grid[0].length}, 48px);
       gap: 6px;
 
       width: fit-content;
       margin: 24px auto;
       padding: 18px;
 
-      border: 1px solid #c8d2cb;
+      border: 1px solid #b8d0bf;
       border-radius: 8px;
 
-      background: #dfeee3;
+      background: #dceee2;
     }
 
     .cell {
@@ -92,11 +92,11 @@ export function generateWordSearchHtml() {
       width: 48px;
       height: 48px;
 
-      border: 1px solid #c8d2cb;
+      border: 1px solid #b8d0bf;
       border-radius: 6px;
 
       background: #ffffff;
-      color: #42634c;
+      color: #315c43;
 
       font-size: 1rem;
       font-weight: 700;
@@ -120,8 +120,8 @@ export function generateWordSearchHtml() {
     }
 
     .cell.found {
-      background: #7fa889;
-      border-color: #42634c;
+      background: #6f9d7d;
+      border-color: #315c43;
       color: #ffffff;
     }
 
@@ -137,11 +137,11 @@ export function generateWordSearchHtml() {
     .control-button {
       padding: 10px 16px;
 
-      border: 1px solid #c8d2cb;
+      border: 1px solid #b8d0bf;
       border-radius: 6px;
 
       background: #ffffff;
-      color: #42634c;
+      color: #315c43;
 
       font-weight: 600;
       cursor: pointer;
@@ -173,7 +173,7 @@ export function generateWordSearchHtml() {
     .word-list li {
       padding: 6px 10px;
 
-      color: #42634c;
+      color: #315c43;
       font-weight: 600;
     }
 
@@ -190,7 +190,7 @@ export function generateWordSearchHtml() {
 
     @media (max-width: 480px) {
       .grid {
-        grid-template-columns: repeat(6, 40px);
+        grid-template-columns: repeat(${grid[0].length}, 40px);
         gap: 4px;
         padding: 10px;
       }
@@ -206,7 +206,7 @@ export function generateWordSearchHtml() {
 
 <body>
   <main class="game">
-    <h1>Phoneme Word Search</h1>
+    <h1>${activity.name}</h1>
 
     <p class="instructions">
       Select the phonemes of a word in a straight line,
@@ -235,7 +235,7 @@ export function generateWordSearchHtml() {
     </div>
 
     <p id="status" class="status" aria-live="polite">
-      Words found: 0 / 5
+      Words found: 0 / ${targetWords.length}
     </p>
 
     <div class="word-list">
@@ -308,7 +308,11 @@ export function generateWordSearchHtml() {
     }
 
     function selectCell(row, column, phoneme) {
-      if (selectedCells.length >= 3) {
+      const maximumWordLength = Math.max(
+        ...targetWords.map((entry) => entry.phonemes.length)
+      );
+
+      if (selectedCells.length >= maximumWordLength) {
         return;
       }
 
@@ -332,7 +336,12 @@ export function generateWordSearchHtml() {
     }
 
     function checkSelection() {
-      if (selectedCells.length !== 3) {
+      const validWordLength = targetWords.some(
+        (entry) =>
+          entry.phonemes.length === selectedCells.length
+      );
+
+      if (!validWordLength) {
         return;
       }
 
@@ -475,7 +484,10 @@ export function generateWordSearchHtml() {
       }
 
       checkButton.disabled =
-        selectedCells.length !== 3;
+        !targetWords.some(
+          (entry) =>
+            entry.phonemes.length === selectedCells.length
+        );
     }
 
     function render() {

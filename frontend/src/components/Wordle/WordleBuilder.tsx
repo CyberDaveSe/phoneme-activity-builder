@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import WordleSettings from "./WordleSettings";
 import WordlePreview from "./WordlePreview";
+import { generateWordleHtml } from "@/utils/generateWordleHtml";
 import styles from "@/app/wordle/Wordle.module.css";
 
 type GuessResult = {
@@ -242,6 +243,52 @@ export default function WordleBuilder({
     setGameStatus("playing");
   };
 
+  const downloadSavedActivity = () => {
+    if (!activity) {
+      return;
+    }
+
+    const targetWord = activity.words[0]?.word;
+
+    if (!targetWord) {
+      return;
+    }
+
+    const phonemes = targetWord.phonemes
+      .slice()
+      .sort((a, b) => a.position - b.position)
+      .map((phoneme) => phoneme.symbol);
+
+    const html = generateWordleHtml({
+      name: activity.name,
+      word: targetWord.text,
+      phonemes,
+    });
+
+    const blob = new Blob([html], {
+      type: "text/html;charset=utf-8",
+    });
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    const safeName =
+      activity.name
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "") || "wordle";
+
+    link.href = url;
+    link.download = `${safeName}.html`;
+
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    URL.revokeObjectURL(url);
+  };
+
   const clearPhonemes = () => {
     if (!activityId) {
       setSelectedPhonemes([]);
@@ -287,6 +334,16 @@ export default function WordleBuilder({
               {activity.words[0].word.hint}
             </p>
           )}
+        
+        {activity && (
+          <button
+            type="button"
+            onClick={downloadSavedActivity}
+          >
+            Download HTML
+          </button>
+        )}
+
       </header>
 
       <section className={styles.workspace}>

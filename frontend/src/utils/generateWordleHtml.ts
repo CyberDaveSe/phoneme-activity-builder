@@ -1,7 +1,14 @@
 import { phonemeRows } from "@/data/phonemes";
-import { wordleTarget } from "@/data/wordleTarget";
 
-export function generateWordleHtml() {
+type WordleExportData = {
+  name: string;
+  word: string;
+  phonemes: string[];
+};
+
+export function generateWordleHtml(
+  activity: WordleExportData
+) {
   const phonemeButtons = phonemeRows
     .flat()
     .map(
@@ -48,8 +55,8 @@ export function generateWordleHtml() {
       margin: 0;
       padding: 32px 16px;
 
-      background: #fdf4f6;
-      color: #31443a;
+      background: #eef7f1;
+      color: #24382d;
 
       font-family: Arial, sans-serif;
     }
@@ -62,7 +69,7 @@ export function generateWordleHtml() {
 
     h1 {
       margin-bottom: 8px;
-      color: #42634c;
+      color: #315c43;
     }
 
     .instructions {
@@ -80,7 +87,7 @@ export function generateWordleHtml() {
 
     .row {
       display: grid;
-      grid-template-columns: repeat(${wordleTarget.phonemes.length}, 52px);
+      grid-template-columns: repeat(${activity.phonemes.length}, 52px);
       gap: 8px;
     }
 
@@ -92,7 +99,7 @@ export function generateWordleHtml() {
       width: 52px;
       height: 52px;
 
-      border: 2px solid #c8d2cb;
+      border: 2px solid #b8d0bf;
       border-radius: 6px;
 
       background: #ffffff;
@@ -102,21 +109,21 @@ export function generateWordleHtml() {
     }
 
     .correct {
-      background: #7fa889;
-      border-color: #42634c;
+      background: #6f9d7d;
+      border-color: #315c43;
       color: #ffffff;
     }
 
     .present {
       background: #f6e7a8;
       border-color: #d8bd55;
-      color: #31443a;
+      color: #24382d;
     }
 
     .absent {
       background: #d9ddda;
       border-color: #aeb6b0;
-      color: #31443a;
+      color: #24382d;
     }
 
     .keyboard {
@@ -130,11 +137,11 @@ export function generateWordleHtml() {
 
     .phoneme-button,
     .control-button {
-      border: 1px solid #c8d2cb;
+      border: 1px solid #b8d0bf;
       border-radius: 6px;
 
       background: #ffffff;
-      color: #42634c;
+      color: #315c43;
 
       font-weight: 600;
       cursor: pointer;
@@ -147,7 +154,7 @@ export function generateWordleHtml() {
 
     .phoneme-button:hover,
     .phoneme-button:focus-visible {
-      background: #dfeee3;
+      background: #dceee2;
     }
 
     .phoneme-button:focus-visible,
@@ -177,7 +184,7 @@ export function generateWordleHtml() {
 
     @media (max-width: 480px) {
       .row {
-        grid-template-columns: repeat(${wordleTarget.phonemes.length}, 44px);
+        grid-template-columns: repeat(${activity.phonemes.length}, 44px);
       }
 
       .tile {
@@ -195,7 +202,7 @@ export function generateWordleHtml() {
 
 <body>
   <main class="game">
-    <h1>Phoneme Wordle</h1>
+    <h1>${activity.name}</h1>
 
     <p class="instructions">
       Select phonemes to build your guess. You have six attempts.
@@ -225,8 +232,8 @@ export function generateWordleHtml() {
   </main>
 
   <script>
-    const target = ${JSON.stringify(wordleTarget.phonemes)};
-    const englishWord = ${JSON.stringify(wordleTarget.word)};
+    const target = ${JSON.stringify(activity.phonemes)};
+    const englishWord = ${JSON.stringify(activity.word)};
 
     const maxAttempts = 6;
 

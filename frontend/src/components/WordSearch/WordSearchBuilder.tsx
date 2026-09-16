@@ -5,6 +5,7 @@ import WordSearchPreview from "./WordSearchPreview";
 import { WordTarget } from "./WordSearchGrid";
 import PhonemeButton from "@/components/Wordle/PhonemeButton";
 import { phonemeRows } from "@/data/phonemes";
+import { generateWordSearchHtml } from "@/utils/generateWordSearchHtml";
 import styles from "./WordSearch.module.css";
 
 type StoredPhoneme = {
@@ -513,6 +514,45 @@ export default function WordSearchBuilder({
     }
   }
 
+  function downloadSavedActivity() {
+    if (!activity || !activity.board) {
+      return;
+    }
+
+    const html = generateWordSearchHtml({
+      name: activity.name,
+      board: activity.board,
+      hintsEnabled: activity.hintsEnabled,
+      words: savedTargetWords.map((target) => ({
+        word: target.word,
+        phonemes: target.phonemes,
+      })),
+    });
+
+    const blob = new Blob([html], {
+      type: "text/html;charset=utf-8",
+    });
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    const safeName =
+      activity.name
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "") || "word-search";
+
+    link.href = url;
+    link.download = `${safeName}.html`;
+
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    URL.revokeObjectURL(url);
+  }
+
   function generateRandomWords() {
     setError("");
 
@@ -593,6 +633,15 @@ export default function WordSearchBuilder({
           Activity difficulty:{" "}
           <strong>{activity.difficulty}</strong>
         </p>
+
+        <button
+          type="button"
+          className={styles.actionButton}
+          onClick={downloadSavedActivity}
+        >
+          Download HTML
+        </button>
+
       </main>
     );
   }
