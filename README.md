@@ -4,6 +4,12 @@ The Phoneme Activity Builder is a full-stack educational web application develop
 
 The project extends the frontend developed in Assessment 1 by introducing a backend API, PostgreSQL database, Prisma ORM, persistent activity configurations, and Docker deployment.
 
+## Repository
+
+GitHub repository:
+
+https://github.com/CyberDaveSe/phoneme-activity-builder
+
 ## Features
 
 - Create, read, update, and delete phoneme-based words.

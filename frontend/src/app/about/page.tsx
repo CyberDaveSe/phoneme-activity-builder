@@ -53,7 +53,7 @@ export default function AboutPage() {
       </section>
 
       <section>
-        <h2>Video Demonstration</h2>
+        <h2>Video Demonstration Assessment 1</h2>
 
         <p>
           The following video explains the design of the application and
@@ -72,6 +72,41 @@ export default function AboutPage() {
         >
           <iframe
             src="https://www.youtube.com/embed/-U99olrgcKs?si=9nShXIXBld0w52sK"
+            title="Phoneme Activity Builder demonstration"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            style={{
+              position: "absolute",
+              inset: 0,
+              width: "100%",
+              height: "100%",
+              border: "none",
+              borderRadius: "10px",
+            }}
+          />
+        </div>
+      </section>
+
+
+            <section>
+        <h2>Video Demonstration Assessment 2</h2>
+
+        <p>
+          A demonstration of the Phoneme Activity Builder’s database-backed Wordle and Word Search activities, 
+          CRUD functionality, backend API, PostgreSQL integration, health check, and Docker deployment.
+        </p>
+
+        <div
+          style={{
+            position: "relative",
+            width: "100%",
+            maxWidth: "900px",
+            aspectRatio: "16 / 9",
+            margin: "24px auto 0",
+          }}
+        >
+          <iframe
+            src="https://www.youtube.com/embed/w7Z12czy0e0"
             title="Phoneme Activity Builder demonstration"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
