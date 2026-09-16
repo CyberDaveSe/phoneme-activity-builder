@@ -163,6 +163,30 @@ export function generateWordleHtml(
       outline-offset: 2px;
     }
 
+    .phoneme-button.correct,
+    .phoneme-button.correct:hover,
+    .phoneme-button.correct:focus-visible {
+      background: #b9dfc4;
+      border-color: #6f9d7d;
+      color: #315c43;
+    }
+
+    .phoneme-button.present,
+    .phoneme-button.present:hover,
+    .phoneme-button.present:focus-visible {
+      background: #f6e7a8;
+      border-color: #d8bd55;
+      color: #24382d;
+    }
+
+    .phoneme-button.absent,
+    .phoneme-button.absent:hover,
+    .phoneme-button.absent:focus-visible {
+      background: #d9dedb;
+      border-color: #aeb8b1;
+      color: #667069;
+    }
+
     .controls {
       display: flex;
       justify-content: center;
@@ -276,6 +300,54 @@ export function generateWordleHtml(
       return results;
     }
 
+    function updateKeyboard() {
+      const keyboardStatus = {};
+
+      guesses.forEach((guess) => {
+        guess.forEach((result) => {
+          const currentStatus =
+            keyboardStatus[result.phoneme];
+
+          if (result.status === "correct") {
+            keyboardStatus[result.phoneme] = "correct";
+            return;
+          }
+
+          if (
+            result.status === "present" &&
+            currentStatus !== "correct"
+          ) {
+            keyboardStatus[result.phoneme] = "present";
+            return;
+          }
+
+          if (
+            result.status === "absent" &&
+            !currentStatus
+          ) {
+            keyboardStatus[result.phoneme] = "absent";
+          }
+        });
+      });
+
+      document
+        .querySelectorAll(".phoneme-button")
+        .forEach((button) => {
+          button.classList.remove(
+            "correct",
+            "present",
+            "absent"
+          );
+
+          const status =
+            keyboardStatus[button.dataset.phoneme];
+
+          if (status) {
+            button.classList.add(status);
+          }
+        });
+    }
+
     function renderBoard() {
       board.innerHTML = "";
 
@@ -364,6 +436,8 @@ export function generateWordleHtml(
       }
 
       renderBoard();
+      updateKeyboard();
+
     }
 
     function startOver() {
@@ -373,6 +447,7 @@ export function generateWordleHtml(
       message.textContent = "";
 
       renderBoard();
+      updateKeyboard();
     }
 
     document.querySelectorAll(".phoneme-button").forEach((button) => {

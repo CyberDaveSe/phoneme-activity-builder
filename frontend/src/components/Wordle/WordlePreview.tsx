@@ -19,6 +19,7 @@ type WordlePreviewProps = {
   onStartOver: () => void;
   gameStatus: "playing" | "won" | "lost";
   targetWord: string;
+  targetLength: number;
 };
 
 export default function WordlePreview({
@@ -32,7 +33,36 @@ export default function WordlePreview({
   onStartOver,
   gameStatus,
   targetWord,
+  targetLength,
 }: WordlePreviewProps) {
+  const getKeyboardStatus = (
+    phoneme: string
+  ): "correct" | "present" | "absent" | undefined => {
+    let status: "correct" | "present" | "absent" | undefined;
+
+    for (const guess of guesses) {
+      for (const result of guess) {
+        if (result.phoneme !== phoneme) {
+          continue;
+        }
+
+        if (result.status === "correct") {
+          return "correct";
+        }
+
+        if (result.status === "present") {
+          status = "present";
+        } else if (
+          result.status === "absent" &&
+          !status
+        ) {
+          status = "absent";
+        }
+      }
+    }
+
+    return status;
+  };
   return (
     <section>
       <h2>Preview</h2>
@@ -67,6 +97,7 @@ export default function WordlePreview({
                 label={phoneme.label}
                 example={phoneme.example}
                 onSelect={onAddGuessPhoneme}
+                status={getKeyboardStatus(phoneme.symbol)}
               />
             ))}
           </div>
@@ -87,7 +118,8 @@ export default function WordlePreview({
           className={styles.clearButton}
           onClick={onSubmitGuess}
           disabled={
-            currentGuess.length !== 3 ||
+            targetLength === 0 ||
+            currentGuess.length !== targetLength ||
             gameStatus !== "playing"
           }
         >

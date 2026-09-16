@@ -68,6 +68,27 @@
     visibility 0.2s ease;
 }
 
+.correct,
+.correct:hover {
+  background-color: #b9dfc4;
+  border-color: #6f9d7d;
+  color: var(--primary-dark);
+}
+
+.present,
+.present:hover {
+  background-color: #f6e7a8;
+  border-color: #d8bd55;
+  color: var(--primary-dark);
+}
+
+.absent,
+.absent:hover {
+  background-color: #d9dedb;
+  border-color: #aeb8b1;
+  color: #667069;
+}
+
 .button:hover .tooltip,
 .button:focus-visible .tooltip {
   opacity: 1;

@@ -322,7 +322,7 @@ export default function WordSearchBuilder({
       return;
     }
 
-    setWordFormError("This activity builder supports a maximum of 5 phonemes per word.");
+    setWordFormError("");
     setNewWordPhonemes((current) => [...current, symbol]);
   }
 

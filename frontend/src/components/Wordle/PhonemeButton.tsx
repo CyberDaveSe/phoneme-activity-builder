@@ -5,6 +5,7 @@ type PhonemeButtonProps = {
   label?: string;
   example?: string;
   onSelect: (phoneme: string) => void;
+  status?: "correct" | "present" | "absent";
 };
 
 export default function PhonemeButton({
@@ -12,11 +13,14 @@ export default function PhonemeButton({
   label,
   example,
   onSelect,
+  status,
 }: PhonemeButtonProps) {
   return (
     <button
       type="button"
-      className={styles.button}
+      className={`${styles.button} ${
+        status ? styles[status] : ""
+      }`}
       onClick={() => onSelect(phoneme)}
       aria-label={
         label

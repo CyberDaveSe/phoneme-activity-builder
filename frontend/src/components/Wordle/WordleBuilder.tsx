@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import WordleSettings from "./WordleSettings";
+import WordleSettings, {
+  DatabaseWord,
+} from "./WordleSettings";
 import WordlePreview from "./WordlePreview";
 import { generateWordleHtml } from "@/utils/generateWordleHtml";
 import styles from "@/app/wordle/Wordle.module.css";
@@ -51,7 +53,11 @@ export default function WordleBuilder({
   const [activity, setActivity] = useState<Activity | null>(null);
   const [loadingActivity, setLoadingActivity] = useState(Boolean(activityId));
   const [activityError, setActivityError] = useState("");
-
+  const [words, setWords] = useState<DatabaseWord[]>([]);
+  const [selectedWord, setSelectedWord] =
+    useState<DatabaseWord | null>(null);
+  const [loadingWords, setLoadingWords] = useState(!activityId);
+  const [wordError, setWordError] = useState("");
   const [selectedPhonemes, setSelectedPhonemes] = useState<string[]>([]);
   const [guesses, setGuesses] = useState<GuessResult[][]>([]);
   const [currentGuess, setCurrentGuess] = useState<string[]>([]);
@@ -79,15 +85,21 @@ export default function WordleBuilder({
         const data: Activity = await response.json();
 
         if (data.type !== "WORDLE") {
-          throw new Error("The selected activity is not a Wordle activity");
+          throw new Error(
+            "The selected activity is not a Wordle activity"
+          );
         }
 
         if (data.words.length === 0) {
-          throw new Error("This activity does not contain a target word");
+          throw new Error(
+            "This activity does not contain a target word"
+          );
         }
 
         const targetWord = data.words[0].word;
+
         const targetPhonemes = targetWord.phonemes
+          .slice()
           .sort((a, b) => a.position - b.position)
           .map((phoneme) => phoneme.symbol);
 
@@ -113,6 +125,115 @@ export default function WordleBuilder({
     loadActivity();
   }, [activityId]);
 
+  useEffect(() => {
+    if (activityId) {
+      return;
+    }
+
+    async function loadWords() {
+      try {
+        setLoadingWords(true);
+        setWordError("");
+
+        const response = await fetch("/api/words");
+
+        if (!response.ok) {
+          throw new Error(
+            "Unable to load words from the database"
+          );
+        }
+
+        const data: DatabaseWord[] = await response.json();
+        setWords(data);
+      } catch (error) {
+        console.error(error);
+
+        setWordError(
+          error instanceof Error
+            ? error.message
+            : "Unable to load words from the database"
+        );
+      } finally {
+        setLoadingWords(false);
+      }
+    }
+
+    loadWords();
+  }, [activityId]);
+
+  const selectDatabaseWord = (word: DatabaseWord) => {
+    const phonemes = word.phonemes
+      .slice()
+      .sort((a, b) => a.position - b.position)
+      .map((phoneme) => phoneme.symbol);
+
+    setSelectedWord(word);
+    setSelectedPhonemes(phonemes);
+    setDifficulty(word.difficulty.toLowerCase());
+    setGuesses([]);
+    setCurrentGuess([]);
+    setGameStatus("playing");
+  };
+
+  const createDatabaseWord = async (
+    text: string,
+    hint: string,
+    phonemes: string[]
+  ) => {
+    const difficulty =
+      phonemes.length === 3
+        ? "EASY"
+        : phonemes.length === 4
+          ? "MEDIUM"
+          : phonemes.length === 5
+            ? "HARD"
+            : null;
+
+    if (!difficulty) {
+      throw new Error(
+        "A Wordle target must contain between 3 and 5 phonemes."
+      );
+    }
+
+    const response = await fetch("/api/words", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        text: text.trim(),
+        hint: hint.trim(),
+        difficulty,
+        phonemes,
+      }),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        result.error ?? "Unable to create word."
+      );
+    }
+
+    const createdWord = result as DatabaseWord;
+
+    setWords((current) => [...current, createdWord]);
+
+    selectDatabaseWord(createdWord);
+
+    return createdWord;
+  };
+
+  const changeDifficulty = (newDifficulty: string) => {
+    setDifficulty(newDifficulty);
+    setSelectedWord(null);
+    setSelectedPhonemes([]);
+    setGuesses([]);
+    setCurrentGuess([]);
+    setGameStatus("playing");
+  };
+
   const targetPhonemes =
     activity?.words[0]?.word.phonemes
       .slice()
@@ -129,27 +250,6 @@ export default function WordleBuilder({
       : targetLength === 5
         ? "hard"
         : difficulty;
-
-  const addPhoneme = (phoneme: string) => {
-    if (activityId) {
-      return;
-    }
-
-    setSelectedPhonemes((current) => {
-      const maximumLength =
-        difficulty === "easy"
-          ? 3
-          : difficulty === "medium"
-            ? 4
-            : 5;
-
-      if (current.length >= maximumLength) {
-        return current;
-      }
-
-      return [...current, phoneme];
-    });
-  };
 
   const addGuessPhoneme = (phoneme: string) => {
     if (gameStatus !== "playing") {
@@ -289,12 +389,6 @@ export default function WordleBuilder({
     URL.revokeObjectURL(url);
   };
 
-  const clearPhonemes = () => {
-    if (!activityId) {
-      setSelectedPhonemes([]);
-    }
-  };
-
   if (loadingActivity) {
     return (
       <main className={styles.builder}>
@@ -338,6 +432,7 @@ export default function WordleBuilder({
         {activity && (
           <button
             type="button"
+            className={styles.downloadButton}
             onClick={downloadSavedActivity}
           >
             Download HTML
@@ -350,11 +445,14 @@ export default function WordleBuilder({
         {!activityId && (
           <div className={styles.panel}>
             <WordleSettings
-              selectedPhonemes={selectedPhonemes}
-              onAddPhoneme={addPhoneme}
-              onClearPhonemes={clearPhonemes}
+              words={words}
+              selectedWordId={selectedWord?.id ?? null}
+              onWordSelect={selectDatabaseWord}
+              onCreateWord={createDatabaseWord}
               difficulty={difficulty}
-              onDifficultyChange={setDifficulty}
+              onDifficultyChange={changeDifficulty}
+              loadingWords={loadingWords}
+              wordError={wordError}
             />
           </div>
         )}
@@ -370,10 +468,11 @@ export default function WordleBuilder({
             onSubmitGuess={submitGuess}
             onStartOver={startOver}
             gameStatus={gameStatus}
+            targetLength={targetLength}
             targetWord={
               activity
                 ? activity.words[0].word.text
-                : ""
+                : selectedWord?.text ?? ""
             }
           />
         </div>
