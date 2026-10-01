@@ -6,6 +6,7 @@ import WordleSettings, {
 } from "./WordleSettings";
 import WordlePreview from "./WordlePreview";
 import { generateWordleHtml } from "@/utils/generateWordleHtml";
+import { recordUsageEvent } from "@/utils/recordUsageEvent";
 import styles from "@/app/wordle/Wordle.module.css";
 
 type GuessResult = {
@@ -343,7 +344,7 @@ export default function WordleBuilder({
     setGameStatus("playing");
   };
 
-  const downloadSavedActivity = () => {
+  const downloadSavedActivity = async () => {
     if (!activity) {
       return;
     }
@@ -385,6 +386,13 @@ export default function WordleBuilder({
     document.body.appendChild(link);
     link.click();
     link.remove();
+
+    URL.revokeObjectURL(url);
+
+    await recordUsageEvent({
+      eventType: "GENERATION_SUCCESS",
+      activityType: "WORDLE",
+    });
 
     URL.revokeObjectURL(url);
   };

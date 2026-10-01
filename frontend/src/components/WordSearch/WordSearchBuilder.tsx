@@ -6,6 +6,7 @@ import { WordTarget } from "./WordSearchGrid";
 import PhonemeButton from "@/components/Wordle/PhonemeButton";
 import { phonemeRows } from "@/data/phonemes";
 import { generateWordSearchHtml } from "@/utils/generateWordSearchHtml";
+import { recordUsageEvent } from "@/utils/recordUsageEvent";
 import styles from "./WordSearch.module.css";
 
 type StoredPhoneme = {
@@ -496,6 +497,13 @@ export default function WordSearchBuilder({
         );
       }
 
+      if (!editMode) {
+        await recordUsageEvent({
+          eventType: "ACTIVITY_CREATED",
+          activityType: "WORD_SEARCH",
+        });
+      }
+
       setActivityMessage(
         editMode
           ? `Activity "${result.name}" updated successfully.`
@@ -514,7 +522,7 @@ export default function WordSearchBuilder({
     }
   }
 
-  function downloadSavedActivity() {
+  async function downloadSavedActivity() {
     if (!activity || !activity.board) {
       return;
     }
@@ -549,6 +557,13 @@ export default function WordSearchBuilder({
     document.body.appendChild(link);
     link.click();
     link.remove();
+
+    URL.revokeObjectURL(url);
+
+    await recordUsageEvent({
+      eventType: "GENERATION_SUCCESS",
+      activityType: "WORD_SEARCH",
+    });
 
     URL.revokeObjectURL(url);
   }

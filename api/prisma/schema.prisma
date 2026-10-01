@@ -18,15 +18,22 @@ enum ActivityType {
   WORD_SEARCH
 }
 
+enum UsageEventType {
+  ACTIVITY_CREATED
+  GENERATION_SUCCESS
+  GENERATION_FAILED
+  PAGE_VIEW
+}
+
 model Word {
-  id         Int           @id @default(autoincrement())
+  id         Int            @id @default(autoincrement())
   text       String
   hint       String?
   difficulty Difficulty
   phonemes   WordPhoneme[]
   activities ActivityWord[]
-  createdAt  DateTime      @default(now())
-  updatedAt  DateTime      @updatedAt
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
 }
 
 model WordPhoneme {
@@ -41,15 +48,15 @@ model WordPhoneme {
 }
 
 model Activity {
-  id           Int          @id @default(autoincrement())
+  id           Int            @id @default(autoincrement())
   name         String
   type         ActivityType
   difficulty   Difficulty
-  hintsEnabled Boolean      @default(false)
+  hintsEnabled Boolean        @default(false)
   board        Json?
   words        ActivityWord[]
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
 }
 
 model ActivityWord {
@@ -60,4 +67,13 @@ model ActivityWord {
   word     Word     @relation(fields: [wordId], references: [id], onDelete: Cascade)
 
   @@id([activityId, wordId])
+}
+
+model UsageEvent {
+  id           Int            @id @default(autoincrement())
+  eventType    UsageEventType
+  activityType ActivityType?
+  page         String?
+  durationMs   Int?
+  createdAt    DateTime       @default(now())
 }
