@@ -1,0 +1,146 @@
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.heading {
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+.heading h1 {
+  margin-bottom: 8px;
+  color: var(--primary-dark);
+}
+
+.heading p {
+  margin: 0 auto;
+  max-width: 700px;
+  line-height: 1.6;
+}
+
+.dashboard section h2 {
+  margin-bottom: 14px;
+  color: var(--primary-dark);
+}
+
+.statusSection {
+  display: flex;
+  flex-direction: column;
+  padding: 18px;
+  background-color: #f5f8f5;
+  border-radius: var(--radius-small);
+}
+
+.healthGood,
+.healthWarning {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-small);
+}
+
+.healthGood {
+  background-color: var(--primary-light);
+}
+
+.healthWarning {
+  background-color: var(--highlight);
+}
+
+.cardGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.metricCard {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 120px;
+  padding: 20px;
+  text-align: center;
+  background-color: #f1f6f2;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-small);
+}
+
+.metricValue {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--primary-dark);
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+.metricLabel {
+  line-height: 1.4;
+  font-weight: 600;
+}
+
+.alertList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.successAlert,
+.warningAlert,
+.errorAlert {
+  padding: 14px 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-small);
+  font-weight: 600;
+}
+
+.successAlert {
+  background-color: var(--primary-light);
+}
+
+.warningAlert {
+  background-color: var(--highlight);
+}
+
+.errorAlert {
+  background-color: var(--surface);
+  border-width: 2px;
+}
+
+.healthGood,
+.successAlert {
+  background-color: #e3f3e7;
+}
+
+.healthWarning,
+.warningAlert {
+  background-color: #fff3cd;
+}
+
+.errorAlert {
+  background-color: #fbe4e4;
+  border-width: 2px;
+}
+
+@media (max-width: 900px) {
+  .cardGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .cardGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .healthGood,
+  .healthWarning {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+

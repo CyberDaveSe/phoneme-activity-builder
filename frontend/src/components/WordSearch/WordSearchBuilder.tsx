@@ -523,49 +523,74 @@ export default function WordSearchBuilder({
   }
 
   async function downloadSavedActivity() {
-    if (!activity || !activity.board) {
+    if (!activity) {
       return;
     }
 
-    const html = generateWordSearchHtml({
-      name: activity.name,
-      board: activity.board,
-      hintsEnabled: activity.hintsEnabled,
-      words: savedTargetWords.map((target) => ({
-        word: target.word,
-        phonemes: target.phonemes,
-      })),
-    });
+    if (
+      !activity.board ||
+      activity.board.length === 0 ||
+      savedTargetWords.length === 0
+    ) {
+      await recordUsageEvent({
+        eventType: "GENERATION_FAILED",
+        activityType: "WORD_SEARCH",
+      });
 
-    const blob = new Blob([html], {
-      type: "text/html;charset=utf-8",
-    });
+      setError(
+        "Unable to generate this Word Search because its board or word data is missing."
+      );
+      return;
+    }
 
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
+    try {
+      const html = generateWordSearchHtml({
+        name: activity.name,
+        board: activity.board,
+        hintsEnabled: activity.hintsEnabled,
+        words: savedTargetWords.map((target) => ({
+          word: target.word,
+          phonemes: target.phonemes,
+        })),
+      });
 
-    const safeName =
-      activity.name
-        .trim()
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-|-$/g, "") || "word-search";
+      const blob = new Blob([html], {
+        type: "text/html;charset=utf-8",
+      });
 
-    link.href = url;
-    link.download = `${safeName}.html`;
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
 
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
+      const safeName =
+        activity.name
+          .trim()
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-|-$/g, "") || "word-search";
 
-    URL.revokeObjectURL(url);
+      link.href = url;
+      link.download = `${safeName}.html`;
 
-    await recordUsageEvent({
-      eventType: "GENERATION_SUCCESS",
-      activityType: "WORD_SEARCH",
-    });
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
 
-    URL.revokeObjectURL(url);
+      URL.revokeObjectURL(url);
+
+      await recordUsageEvent({
+        eventType: "GENERATION_SUCCESS",
+        activityType: "WORD_SEARCH",
+      });
+    } catch (error) {
+      console.error("Failed to generate Word Search HTML:", error);
+
+      await recordUsageEvent({
+        eventType: "GENERATION_FAILED",
+        activityType: "WORD_SEARCH",
+      });
+
+      setError("Unable to generate the Word Search HTML file.");
+    }
   }
 
   function generateRandomWords() {

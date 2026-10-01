@@ -1,4 +1,5 @@
 import WordSearchBuilder from "@/components/WordSearch/WordSearchBuilder";
+import PageTimeTracker from "@/components/PageTimeTracker";
 
 type WordSearchPageProps = {
   searchParams: Promise<{
@@ -14,6 +15,7 @@ export default async function WordSearchPage({
 
   return (
     <div className="pageContainer">
+      <PageTimeTracker page="/word-search" />
       <WordSearchBuilder
         activityId={params.activity}
         editMode={params.edit === "true"}

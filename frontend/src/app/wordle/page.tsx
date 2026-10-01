@@ -1,4 +1,5 @@
 import WordleBuilder from "@/components/Wordle/WordleBuilder";
+import PageTimeTracker from "@/components/PageTimeTracker";
 
 type WordlePageProps = {
   searchParams: Promise<{
@@ -13,6 +14,7 @@ export default async function WordlePage({
 
   return (
     <div className="pageContainer">
+      <PageTimeTracker page="/wordle" />
       <WordleBuilder activityId={params.activity} />
     </div>
   );

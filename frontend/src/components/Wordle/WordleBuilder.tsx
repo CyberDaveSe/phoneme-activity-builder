@@ -344,17 +344,26 @@ export default function WordleBuilder({
     setGameStatus("playing");
   };
 
-  const downloadSavedActivity = async () => {
-    if (!activity) {
-      return;
-    }
+const downloadSavedActivity = async () => {
+  if (!activity) {
+    return;
+  }
 
-    const targetWord = activity.words[0]?.word;
+  const targetWord = activity.words[0]?.word;
 
-    if (!targetWord) {
-      return;
-    }
+  if (!targetWord || targetWord.phonemes.length === 0) {
+    await recordUsageEvent({
+      eventType: "GENERATION_FAILED",
+      activityType: "WORDLE",
+    });
 
+    setActivityError(
+      "Unable to generate this Wordle because its word or phoneme data is missing."
+    );
+    return;
+  }
+
+  try {
     const phonemes = targetWord.phonemes
       .slice()
       .sort((a, b) => a.position - b.position)
@@ -393,9 +402,17 @@ export default function WordleBuilder({
       eventType: "GENERATION_SUCCESS",
       activityType: "WORDLE",
     });
+  } catch (error) {
+    console.error("Failed to generate Wordle HTML:", error);
 
-    URL.revokeObjectURL(url);
-  };
+    await recordUsageEvent({
+      eventType: "GENERATION_FAILED",
+      activityType: "WORDLE",
+    });
+
+    setActivityError("Unable to generate the Wordle HTML file.");
+  }
+};
 
   if (loadingActivity) {
     return (
