@@ -22,6 +22,9 @@
   --radius-small: 6px;
   --radius-medium: 10px;
   --radius-large: 16px;
+
+  --button-bg: #185c3a;
+  --button-text: #ffffff;
 }
 
 [data-theme="dark"] {
@@ -44,6 +47,9 @@
   /* UI */
   --border: #405a49;
   --focus: #9bcaaa;
+
+  --button-bg: #c0e1ca;
+  --button-text: #17231c;
 }
 
 html {

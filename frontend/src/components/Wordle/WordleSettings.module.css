@@ -147,15 +147,15 @@
   padding: 10px 18px;
   border: none;
   border-radius: var(--radius-small);
-  background-color: var(--primary);
-  color: #ffffff;
+  background-color: var(--button-bg);
+  color: var(--button-text);
   font: inherit;
   font-weight: 600;
   cursor: pointer;
 }
 
 .addWordButton:hover:not(:disabled) {
-  background-color: var(--primary-dark);
+  background-color: var(--button-bg);
 }
 
 .addWordButton:disabled {

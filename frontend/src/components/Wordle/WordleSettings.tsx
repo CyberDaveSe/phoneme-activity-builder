@@ -191,7 +191,7 @@ export default function WordleSettings({
       </div>
 
       <div className={styles.wordSelection}>
-        <h3>Select Target Word</h3>
+        <h3 id="target-word-label">Select Target Word</h3>
 
         <p>
           Choose a stored word to use as the Wordle
@@ -208,6 +208,7 @@ export default function WordleSettings({
           <>
             <select
               className={styles.wordSelect}
+              aria-labelledby="target-word-label"
               value={selectedWordId ?? ""}
               onChange={(event) => {
                 const id = Number(event.target.value);

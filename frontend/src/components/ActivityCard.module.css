@@ -58,22 +58,19 @@
 
 .button {
   align-self: center;
-
   padding: 10px 18px;
-
   border-radius: var(--radius-small);
 
-  background-color: var(--primary);
-  color: #ffffff;
+  background-color: var(--button-bg);
+  color: var(--button-text);
 
   font-weight: 600;
   text-decoration: none;
-
   transition: background-color 0.2s ease;
 }
 
 .button:hover {
-  background-color: var(--primary-dark);
+  background-color: var(--button-bg);
 }
 
 .button:focus-visible {
