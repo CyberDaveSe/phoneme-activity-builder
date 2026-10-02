@@ -41,3 +41,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Playwright generated output
+playwright-report/
+test-results/
+
+# JMeter generated output
+jmeter.log
+tests/load/reports/

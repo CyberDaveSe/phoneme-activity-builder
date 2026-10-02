@@ -1,0 +1,7 @@
+timeStamp,elapsed,label,responseCode,responseMessage,threadName,dataType,success,failureMessage,bytes,sentBytes,grpThreads,allThreads,URL,Latency,IdleTime,Connect
+1790924908048,31,Builder - Load Words,200,OK,Builder and Activity Workflow 1-1,text,true,,17941,119,1,1,http://localhost:3000/,28,0,16
+1790924908080,16,Builder - Load Activities,200,OK,Builder and Activity Workflow 1-1,text,true,,4769,133,1,1,http://localhost:3000/api/activities,16,0,0
+1790924908096,5,System - Health Check,200,OK,Builder and Activity Workflow 1-1,text,true,,316,125,1,1,http://localhost:3000/health,5,0,0
+1790924908101,45,Dashboard - Load Metrics,200,OK,Builder and Activity Workflow 1-1,text,true,,558,130,1,1,http://localhost:3000/api/metrics,45,0,0
+1790924908146,17,Generated Activity - Load Wordle Page,200,OK,Builder and Activity Workflow 1-1,text,true,,9698,136,1,1,http://localhost:3000/wordle?activity=2,17,0,0
+1790924908164,16,Generated Activity - Load Saved Wordle Data,200,OK,Builder and Activity Workflow 1-1,text,true,,833,135,1,1,http://localhost:3000/api/activities/2,16,0,0
