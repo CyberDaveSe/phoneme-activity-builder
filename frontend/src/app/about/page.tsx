@@ -4,18 +4,18 @@ export default function AboutPage() {
       <section>
         <h1>About the Project</h1>
 
-        <p>
-          The Phoneme Activity Builder is a frontend web application designed
-          for Speech Pathology students and teachers to create phoneme-based
-          classroom activities.
-        </p>
+          <p>
+            The Phoneme Activity Builder is a full-stack educational web application
+            designed for Speech Pathology students and teachers to create phoneme-based
+            classroom activities.
+          </p>
 
-        <p>
-          Assessment 1 focuses on frontend design, usability, accessibility,
-          responsive layout, and the generation of standalone classroom
-          activities. Database-driven word management and more advanced
-          activity generation are intended for later stages of the project.
-        </p>
+          <p>
+            The application combines Wordle and Word Search activity builders with
+            database-backed word and activity management, standalone activity generation,
+            operational monitoring, reporting, and automated testing. The project has
+            been developed progressively across the CSE3CWA assessments.
+          </p>
       </section>
 
       <section>
@@ -108,6 +108,42 @@ export default function AboutPage() {
           <iframe
             src="https://www.youtube.com/embed/w7Z12czy0e0"
             title="Phoneme Activity Builder demonstration"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            style={{
+              position: "absolute",
+              inset: 0,
+              width: "100%",
+              height: "100%",
+              border: "none",
+              borderRadius: "10px",
+            }}
+          />
+        </div>
+      </section>
+
+      <section>
+        <h2>Video Demonstration Assessment 3</h2>
+
+        <p>
+          A demonstration of the Phoneme Activity Builder's data-driven
+          dashboard, database persistence, observability and operational monitoring,
+          activity generation, Playwright end-to-end testing, JMeter load testing,
+          Lighthouse accessibility evaluation, and GitHub development history.
+        </p>
+
+        <div
+          style={{
+            position: "relative",
+            width: "100%",
+            maxWidth: "900px",
+            aspectRatio: "16 / 9",
+            margin: "24px auto 0",
+          }}
+        >
+          <iframe
+            src="https://www.youtube.com/embed/JzXpUWIqO1s"
+            title="Phoneme Activity Builder Assessment 3 demonstration"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
             style={{
