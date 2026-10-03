@@ -63,6 +63,12 @@ export default function WordleBuilder({
   const [guesses, setGuesses] = useState<GuessResult[][]>([]);
   const [currentGuess, setCurrentGuess] = useState<string[]>([]);
   const [difficulty, setDifficulty] = useState("medium");
+  const [activityName, setActivityName] = useState("");
+  const [hintsEnabled, setHintsEnabled] = useState(false);
+  const [savingActivity, setSavingActivity] = useState(false);
+  const [activityMessage, setActivityMessage] = useState("");
+  const [savedActivity, setSavedActivity] =
+    useState<Activity | null>(null);
   
   const [gameStatus, setGameStatus] =
     useState<GameStatus>("playing");
@@ -226,6 +232,80 @@ export default function WordleBuilder({
     return createdWord;
   };
 
+  const saveActivity = async () => {
+    if (!activityName.trim()) {
+      setWordError("Enter an activity name.");
+      return;
+    }
+
+    if (!selectedWord) {
+      setWordError("Select a target word.");
+      return;
+    }
+
+    try {
+      setSavingActivity(true);
+      setWordError("");
+      setActivityMessage("");
+
+      const response = await fetch("/api/activities", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: activityName.trim(),
+          type: "WORDLE",
+          difficulty: selectedWord.difficulty,
+          hintsEnabled,
+          wordIds: [selectedWord.id],
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          result.error ?? "Failed to save activity."
+        );
+      }
+
+      await recordUsageEvent({
+        eventType: "ACTIVITY_CREATED",
+        activityType: "WORDLE",
+      });
+
+      const savedActivityResponse = await fetch(
+        `/api/activities/${result.id}`
+      );
+
+      if (!savedActivityResponse.ok) {
+        throw new Error(
+          "Activity was saved, but could not be reloaded."
+        );
+      }
+
+      const savedActivityData: Activity =
+        await savedActivityResponse.json();
+
+      setSavedActivity(savedActivityData);
+
+      setActivityMessage(
+        `Activity "${result.name}" saved successfully.`
+      );
+    } catch (error) {
+      console.error("Failed to save Wordle activity:", error);
+
+      setWordError(
+        error instanceof Error
+          ? error.message
+          : "Unable to save activity."
+      );
+    } finally {
+      setSavingActivity(false);
+    }
+  };
+
   const changeDifficulty = (newDifficulty: string) => {
     setDifficulty(newDifficulty);
     setSelectedWord(null);
@@ -345,11 +425,14 @@ export default function WordleBuilder({
   };
 
 const downloadSavedActivity = async () => {
-  if (!activity) {
+  const activityToDownload = activity ?? savedActivity;
+
+  if (!activityToDownload) {
     return;
   }
 
-  const targetWord = activity.words[0]?.word;
+  const targetWord =
+    activityToDownload.words[0]?.word;
 
   if (!targetWord || targetWord.phonemes.length === 0) {
     await recordUsageEvent({
@@ -370,7 +453,7 @@ const downloadSavedActivity = async () => {
       .map((phoneme) => phoneme.symbol);
 
     const html = generateWordleHtml({
-      name: activity.name,
+      name: activityToDownload.name,
       word: targetWord.text,
       phonemes,
     });
@@ -383,7 +466,7 @@ const downloadSavedActivity = async () => {
     const link = document.createElement("a");
 
     const safeName =
-      activity.name
+      activityToDownload.name
         .trim()
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "-")
@@ -479,6 +562,79 @@ const downloadSavedActivity = async () => {
               loadingWords={loadingWords}
               wordError={wordError}
             />
+            <div className={styles.activitySettings}>
+              <h3>Activity Settings</h3>
+
+              <label className={styles.activityField}>
+                Activity name
+                <input
+                  className={styles.activityInput}
+                  type="text"
+                  value={activityName}
+                  onChange={(event) =>
+                    setActivityName(event.target.value)
+                  }
+                  placeholder="e.g. Week 3 Wordle"
+                />
+              </label>
+
+              <label className={styles.checkboxLabel}>
+                <input
+                  type="checkbox"
+                  checked={hintsEnabled}
+                  onChange={(event) =>
+                    setHintsEnabled(event.target.checked)
+                  }
+                />
+                Enable hints
+              </label>
+
+              <p className={styles.difficultySummary}>
+                Saved difficulty:{" "}
+                <strong>
+                  {selectedWord
+                    ? selectedWord.difficulty
+                        .toLowerCase()
+                        .replace(/^./, (letter) =>
+                          letter.toUpperCase()
+                        )
+                    : difficulty.replace(/^./, (letter) =>
+                        letter.toUpperCase()
+                      )}
+                </strong>
+              </p>
+
+              <div className={styles.activityActions}>
+                <button
+                  type="button"
+                  className={styles.saveButton}
+                  onClick={saveActivity}
+                  disabled={savingActivity || !selectedWord}
+                >
+                  {savingActivity ? "Saving..." : "Save Activity"}
+                </button>
+
+                {savedActivity && (
+                  <button
+                    type="button"
+                    className={styles.downloadButton}
+                    onClick={downloadSavedActivity}
+                  >
+                    Download HTML
+                  </button>
+                )}
+              </div>
+
+              {activityMessage && (
+                <p
+                  className={styles.activityMessage}
+                  role="status"
+                >
+                  {activityMessage}
+                </p>
+              )}
+            </div>
+
           </div>
         )}
 
