@@ -2,7 +2,7 @@
 
 The Phoneme Activity Builder is a full-stack educational web application developed for CSE3CWA Cloud Web Applications. It is designed to support Speech Pathology students and teachers in creating phoneme-based Wordle and Word Search classroom activities.
 
-The project extends the frontend developed in Assessment 1 by introducing a backend API, PostgreSQL database, Prisma ORM, persistent activity configurations, and Docker deployment.
+The project extends the original frontend with a backend API, PostgreSQL database, Prisma ORM, persistent activity configurations, standalone activity generation, Docker deployment, operational monitoring, automated end-to-end testing, load testing, and accessibility evaluation.
 
 ## Repository
 
@@ -22,8 +22,14 @@ https://github.com/CyberDaveSe/phoneme-activity-builder
 - Interactive Wordle and Word Search previews.
 - Generate standalone downloadable HTML activities.
 - Validation and error handling for word and activity data.
-- Healthcheck endpoint for backend availability.
+- Healthcheck endpoint for API availability and PostgreSQL database connectivity.
 - Docker-based frontend, API, and PostgreSQL deployment.
+- Usage dashboard showing application activity and operational statistics.
+- Usage event tracking for activity creation and generation outcomes.
+- Successful and failed activity-generation monitoring.
+- Automated end-to-end testing with Playwright.
+- Load and performance testing with Apache JMeter.
+- Accessibility evaluation with Lighthouse.
 
 ## Architecture
 
@@ -151,13 +157,18 @@ These routes support multiple stored Wordle and Word Search configurations.
 GET /health
 ```
 
-A successful request returns HTTP `200 OK` with:
+The healthcheck endpoint reports both API availability and database connectivity.
+
+A healthy application returns HTTP `200 OK` with:
 
 ```json
 {
-  "status": "ok"
+  "status": "ok",
+  "database": "connected"
 }
 ```
+
+This allows the application dashboard and external monitoring to verify that the API is responding and that the PostgreSQL database connection is operational.
 
 ## Docker
 
@@ -289,6 +300,26 @@ The generated board is persisted with the activity so that reopening a saved act
 
 Saved Word Search activities can also be exported as standalone HTML files.
 
+## Dashboard and Observability
+
+The application includes a dashboard for monitoring application usage and operational behaviour.
+
+Usage events are recorded for significant application actions, allowing the dashboard to summarise activity including activity creation and HTML generation outcomes.
+
+Dashboard information includes:
+
+- total activities created
+- Wordle and Word Search usage
+- most-used activity type
+- successful activity generations
+- failed activity generations
+- page usage and timing information
+- application/API health information
+
+Generation outcomes are recorded separately as successful or failed events. This allows generation problems to be visible through the dashboard rather than failing silently.
+
+The monitoring implementation was verified using both successful activity generation and a deliberately induced generation failure. The controlled failure was recorded by the application and appeared in the dashboard's failed-generation statistics.
+
 ## Validation and Error Handling
 
 The application validates word and activity data before it is stored.
@@ -305,6 +336,49 @@ Examples include:
 
 The frontend displays appropriate error messages when invalid data is submitted or API operations fail.
 
+## Testing and Quality Assurance
+
+### Playwright End-to-End Testing
+
+Playwright is used to automate end-to-end browser testing of the application.
+
+The test suite verifies core application behaviour including application loading and activity workflows. The Wordle activity-output test exercises the complete workflow by creating and saving an activity through the frontend, generating its standalone HTML output, loading the generated activity, playing the correct phoneme sequence, and confirming a successful result.
+
+The complete Playwright test suite passes successfully.
+
+### Apache JMeter Load Testing
+
+Apache JMeter is used to evaluate API behaviour under increasing simulated load.
+
+Load tests were performed using:
+
+| Virtual Users | Requests | Errors |
+|---:|---:|---:|
+| 1 | 6 | 0 |
+| 10 | 60 | 0 |
+| 100 | 600 | 0 |
+| 1,000 | 6,000 | 0 |
+| 10,000 | 60,000 | 0 |
+
+The 10,000-user test completed approximately 60,000 requests in two minutes at approximately 500 requests per second, with an average response time of approximately 5 ms and no request errors.
+
+### Lighthouse Accessibility Testing
+
+Lighthouse accessibility audits were performed on the main application interfaces.
+
+Initial testing identified colour-contrast issues. The affected interface styles were corrected and the pages were retested.
+
+Final accessibility scores:
+
+| Page | Accessibility |
+|---|---:|
+| Dashboard | 100 |
+| Words | 100 |
+| Wordle | 100 |
+| Word Search | 100 |
+
+This testing was used not only as evidence of application quality but also to identify and correct accessibility problems in the final interface.
+
 ## Technologies
 
 - Next.js
@@ -314,18 +388,25 @@ The frontend displays appropriate error messages when invalid data is submitted 
 - PostgreSQL
 - Docker
 - Docker Compose
+- Playwright
+- Apache JMeter
+- Lighthouse
 - HTML
 - CSS
 
 ## Assessment Development
 
-This project was developed as part of CSE3CWA Cloud Web Applications.
+This project was developed progressively through the CSE3CWA Cloud Web Applications assessments.
 
-Assessment 1 established the frontend interface and activity-builder experience.
+### Assessment 1
 
-Assessment 2 extends the application with:
+Assessment 1 established the frontend interface and initial Wordle and Word Search activity-builder experience.
 
-- backend APIs
+### Assessment 2
+
+Assessment 2 extended the application with:
+
+- backend REST APIs
 - PostgreSQL persistence
 - Prisma database modelling
 - CRUD operations
@@ -334,4 +415,18 @@ Assessment 2 extends the application with:
 - validation and error handling
 - Docker deployment
 
-The project is maintained using Git and GitHub with Assessment 1 preserved on the main branch and Assessment 2 development maintained through a dedicated assessment branch.
+### Assessment 3
+
+Assessment 3 extends the production-ready application with:
+
+- application usage monitoring and dashboard reporting
+- operational health information
+- activity-generation success and failure tracking
+- automated Playwright end-to-end testing
+- JMeter load testing
+- Lighthouse accessibility testing
+- accessibility improvements identified through testing
+- expanded Wordle activity creation, persistence and download workflow
+- verification of standalone generated activity behaviour
+
+The project is maintained using Git and GitHub with development preserved through dedicated assessment branches and meaningful commits documenting the evolution of the application.
